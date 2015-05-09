@@ -1712,7 +1712,11 @@ static int cfg80211_rtw_set_default_key(struct wiphy *wiphy,
 
 static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 				    struct net_device *ndev,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,15,0))
+				    const u8 *mac, struct station_info *sinfo)
+#else
 				    u8 *mac, struct station_info *sinfo)
+#endif
 {
 	int ret = 0;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
@@ -4158,7 +4162,11 @@ static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
 #endif //(LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0))
 
 static int	cfg80211_rtw_add_station(struct wiphy *wiphy, struct net_device *ndev,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,15,0))
+			       const u8 *mac, struct station_parameters *params)
+#else
 			       u8 *mac, struct station_parameters *params)
+#endif
 {
 	DBG_871X(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 	
@@ -4166,7 +4174,11 @@ static int	cfg80211_rtw_add_station(struct wiphy *wiphy, struct net_device *ndev
 }
 
 static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,15,0))
+			       const u8 *mac)
+#else
 			       u8 *mac)
+#endif
 {
 	int ret=0;	
 	_irqL irqL;
@@ -4257,7 +4269,11 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 }
 
 static int	cfg80211_rtw_change_station(struct wiphy *wiphy, struct net_device *ndev,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,15,0))
+				  const u8 *mac, struct station_parameters *params)
+#else
 				  u8 *mac, struct station_parameters *params)
+#endif
 {
 	DBG_871X(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 	
