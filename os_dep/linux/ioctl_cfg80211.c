@@ -2667,7 +2667,7 @@ static int rtw_cfg80211_set_key_mgt(struct security_priv *psecuritypriv, u32 key
 	return 0;
 }
 
-static int rtw_cfg80211_set_wpa_ie(_adapter *padapter, u8 *pie, size_t ielen)
+static int rtw_cfg80211_set_wpa_ie(_adapter *padapter, const u8 *pie, size_t ielen)
 {
 	u8 *buf=NULL, *pos=NULL;	
 	u32 left; 	
