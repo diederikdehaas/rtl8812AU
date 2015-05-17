@@ -4340,7 +4340,11 @@ static int	cfg80211_rtw_dump_station(struct wiphy *wiphy, struct net_device *nde
 	}
 	_rtw_memcpy(mac, psta->hwaddr, ETH_ALEN);
 	sinfo->filled = 0;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
+    sinfo->filled |= BIT(NL80211_STA_INFO_SIGNAL);
+#else
 	sinfo->filled |= STATION_INFO_SIGNAL;
+#endif
 	sinfo->signal = psta->rssi;
 	
 exit:
