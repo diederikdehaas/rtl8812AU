@@ -199,7 +199,7 @@
 		#include "rtl8821a/HalPhyRf_8821A.h"//for IQK,LCK,Power-tracking
 		#include "rtl8812a/HalPhyRf_8812A.h"//for IQK,LCK,Power-tracking
 		#include "rtl8812a_hal.h"
-		#include "rtl8821a/PhyDM_IQK_8821A.h"
+		//#include "rtl8821a/PhyDM_IQK_8821A.h"
 	#endif
 
 	#if (RTL8723B_SUPPORT==1)
