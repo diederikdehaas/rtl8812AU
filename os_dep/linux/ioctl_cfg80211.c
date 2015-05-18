@@ -4394,6 +4394,77 @@ static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 	return 0;
 }
 
+static int  bwmode_to_nl80211_chan_width(u8 bwmode,
+                         enum nl80211_chan_width *width)
+{
+    enum nl80211_chan_width ret;
+
+    if (bwmode == CHANNEL_WIDTH_20)
+        ret = NL80211_CHAN_WIDTH_20;
+    else if (bwmode == CHANNEL_WIDTH_40)
+        ret = NL80211_CHAN_WIDTH_40;
+    else if (bwmode == CHANNEL_WIDTH_80)
+        ret = NL80211_CHAN_WIDTH_80;
+    else if (bwmode == CHANNEL_WIDTH_160)
+        ret = NL80211_CHAN_WIDTH_160;
+    else if (bwmode == CHANNEL_WIDTH_80_80)
+        ret = NL80211_CHAN_WIDTH_80P80;
+    else
+        return -ENOENT;
+
+    *width = ret;
+    return 0;
+}
+
+
+static int  cfg80211_rtw_get_channel(struct wiphy *wiphy,
+        struct wireless_dev *wdev,
+        struct cfg80211_chan_def *chandef)
+{
+    u8 channel, bwmode, choffset, center_ch;
+    int freq, ret;
+    struct ieee80211_channel *chan;
+    enum nl80211_chan_width width;
+    _adapter *adapter = (_adapter *)rtw_netdev_priv((wdev->netdev));
+
+    if (!adapter)
+        return -ENODEV;
+
+    channel = rtw_get_oper_ch(adapter);
+    if (channel == 0)
+        return -ENODEV;
+    if (channel < 30)
+        freq = ieee80211_channel_to_frequency(channel, NL80211_BAND_2GHZ);
+    else
+        freq = ieee80211_channel_to_frequency(channel, NL80211_BAND_5GHZ);
+    if (freq == 0)
+        return -ENOENT;
+
+    chan = ieee80211_get_channel(wiphy, freq);
+    if (!chan)
+        return -ENOENT;
+
+    bwmode = rtw_get_oper_bw(adapter);
+    ret = bwmode_to_nl80211_chan_width(bwmode, &width);
+    if (ret)
+        return -ENOENT;
+    choffset = rtw_get_oper_choffset(adapter);
+    center_ch = rtw_get_center_ch(channel, bwmode, choffset);
+    if (center_ch < 30)
+        freq = ieee80211_channel_to_frequency(center_ch, NL80211_BAND_2GHZ);
+    else
+        freq = ieee80211_channel_to_frequency(center_ch, NL80211_BAND_5GHZ);
+    if (freq == 0)
+        return -ENOENT;
+
+    chandef->chan = chan;
+    chandef->width = width;
+    chandef->center_freq1 = freq;
+    chandef->center_freq2 = 0;
+
+    return 0;
+}
+
 static int	cfg80211_rtw_auth(struct wiphy *wiphy, struct net_device *ndev,
 			struct cfg80211_auth_request *req)
 {
