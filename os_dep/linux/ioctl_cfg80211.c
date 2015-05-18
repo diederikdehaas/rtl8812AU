@@ -4354,6 +4354,41 @@ static int	cfg80211_rtw_dump_station(struct wiphy *wiphy, struct net_device *nde
 #endif
 	sinfo->signal = psta->rssi;
 	
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
+    sinfo->filled |= BIT(NL80211_STA_INFO_RX_BYTES64);
+#else
+	sinfo->filled |= STATION_INFO_RX_BYTES64;
+#endif
+    sinfo->rx_bytes = psta->sta_stats.rx_bytes;
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
+    sinfo->filled |= BIT(NL80211_STA_INFO_TX_BYTES64);
+#else
+	sinfo->filled |= STATION_INFO_TX_BYTES64;
+#endif
+    sinfo->tx_bytes = psta->sta_stats.tx_bytes;
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
+    sinfo->filled |= BIT(NL80211_STA_INFO_RX_PACKETS);
+#else
+	sinfo->filled |= STATION_INFO_RX_PACKETS;
+#endif
+    sinfo->rx_packets = sta_rx_pkts(psta);
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
+    sinfo->filled |= BIT(NL80211_STA_INFO_TX_PACKETS);
+#else
+	sinfo->filled |= STATION_INFO_TX_PACKETS;
+#endif
+    sinfo->tx_packets = psta->sta_stats.tx_pkts;
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
+    sinfo->filled |= BIT(NL80211_STA_INFO_TX_FAILED);
+#else
+	sinfo->filled |= STATION_INFO_TX_FAILED;
+#endif
+    sinfo->tx_failed = psta->sta_stats.tx_drops;
+
 exit:
 	return ret;
 }
