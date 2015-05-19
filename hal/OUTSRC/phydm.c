@@ -289,8 +289,8 @@ odm_HWSetting(
 	)
 {
 #if (RTL8821A_SUPPORT == 1)
-	if(pDM_Odm->SupportICType & ODM_RTL8821)
-		odm_HWSetting_8821A(pDM_Odm);
+	//if(pDM_Odm->SupportICType & ODM_RTL8821)
+	//	odm_HWSetting_8821A(pDM_Odm);
 #endif
 
 }
