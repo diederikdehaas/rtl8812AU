@@ -589,8 +589,8 @@ _OUTSRC_FILES += hal/OUTSRC/rtl8821a/HalHWImg8821A_FW.o\
 		hal/OUTSRC/rtl8812a/HalPhyRf_8812A.o\
 		hal/OUTSRC/rtl8821a/HalPhyRf_8821A.o\
 		hal/OUTSRC/rtl8821a/phydm_RegConfig8821A.o\
-		hal/OUTSRC/rtl8821a/phydm_RTL8821A.o\
-		hal/OUTSRC/rtl8821a/PhyDM_IQK_8821A.o
+		hal/OUTSRC/rtl8821a/phydm_RTL8821A.o
+		#hal/OUTSRC/rtl8821a/PhyDM_IQK_8821A.o
 endif
 
 
