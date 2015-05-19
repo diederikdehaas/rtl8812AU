@@ -401,7 +401,7 @@ typedef enum _RT_SPINLOCK_TYPE{
 	#define	RTL8881A_SUPPORT	0
 #endif
 
-#define READ_NEXT_PAIR(v1, v2, i) do { if (i+2 >= ArrayLen) break; i += 2; v1 = Array[i]; v2 = Array[i+1]; } while(0)
+//#define READ_NEXT_PAIR(v1, v2, i) do { if (i+2 >= ArrayLen) break; i += 2; v1 = Array[i]; v2 = Array[i+1]; } while(0)
 #define COND_ELSE  2
 #define COND_ENDIF 3
 
