@@ -228,5 +228,11 @@ ODM_ReadAndConfig_MP_8821A_MAC_REG(
 
 }
 
+u4Byte
+ODM_GetVersion_MP_8821A_MAC_REG(void)
+{
+	   return 0;	//no idea what to return here
+}
+
 #endif // end of HWIMG_SUPPORT
 

@@ -32,6 +32,7 @@ void
 ODM_ReadAndConfig_MP_8821A_MAC_REG( // TC: Test Chip, MP: MP Chip
 	IN   PDM_ODM_T  pDM_Odm
 );
+u4Byte ODM_GetVersion_MP_8821A_MAC_REG(void);
 
 #endif
 #endif // end of HWIMG_SUPPORT
