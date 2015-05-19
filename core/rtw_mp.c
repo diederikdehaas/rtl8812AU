@@ -423,7 +423,7 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 
 #define PHY_IQCalibrate(_Adapter, b)	\
 		IS_HARDWARE_TYPE_8812(_Adapter) ? PHY_IQCalibrate_8812A(_Adapter, b) : \
-		IS_HARDWARE_TYPE_8821(_Adapter) ? PHY_IQCalibrate_8821A(&(GET_HAL_DATA(_Adapter)->odmpriv), b) : \
+		IS_HARDWARE_TYPE_8821(_Adapter) ? PHY_IQCalibrate_8821A((GET_HAL_DATA(_Adapter)->odmpriv.Adapter), b) : \
 		PHY_IQCalibrate_default(_Adapter, b)
 
 #define PHY_LCCalibrate(_Adapter)	\

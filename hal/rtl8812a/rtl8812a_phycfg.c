@@ -1962,7 +1962,7 @@ phy_SwChnlAndSetBwMode8812(
 		else if(IS_HARDWARE_TYPE_8821(Adapter))
 		{
 #if (RTL8821A_SUPPORT == 1)
-			PHY_IQCalibrate_8821A(pDM_Odm, _FALSE);
+			PHY_IQCalibrate_8821A(Adapter, _FALSE);
 #endif
 		}	
 		pHalData->bNeedIQK = _FALSE;

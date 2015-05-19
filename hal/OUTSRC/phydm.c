@@ -1214,7 +1214,7 @@ odm_IQCalibrate(
 		{
 			// Mark out IQK flow to prevent tx stuck. by Maddest 20130306
 			// Open it verified by James 20130715
-			PHY_IQCalibrate_8821A(pDM_Odm, FALSE);
+			PHY_IQCalibrate_8821A(Adapter, FALSE);
 		}
 	}
 	else
