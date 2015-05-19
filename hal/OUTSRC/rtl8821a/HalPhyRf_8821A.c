@@ -161,7 +161,7 @@ ODM_TxPwrTrackSetPwr8821A(
 
 
 #if (MP_DRIVER==1)
-	if ( *(pDM_Odm->mp_mode) == 1)
+	if ( pDM_Odm->mp_mode == 1)
 	{
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE ))
 	#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
