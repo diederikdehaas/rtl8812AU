@@ -127,9 +127,19 @@ int dbg_rtw_cfg80211_vendor_cmd_reply(struct sk_buff *skb
 	return ret;
 }
 
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)) 
+
+#define rtw_cfg80211_vendor_event_alloc(wiphy, wdev, len, event_id, gfp) \
+	dbg_rtw_cfg80211_vendor_event_alloc(wiphy, wdev, len, event_id, gfp, MSTAT_FUNC_CFG_VENDOR|MSTAT_TYPE_SKB, __FUNCTION__, __LINE__)
+
+#else
+
 #define rtw_cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp) \
 	dbg_rtw_cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp, MSTAT_FUNC_CFG_VENDOR|MSTAT_TYPE_SKB, __FUNCTION__, __LINE__)
-	
+
+#endif
+
 #define rtw_cfg80211_vendor_event(skb, gfp) \
 	dbg_rtw_cfg80211_vendor_event(skb, gfp, MSTAT_FUNC_CFG_VENDOR|MSTAT_TYPE_SKB, __FUNCTION__, __LINE__)
 	
@@ -139,9 +149,18 @@ int dbg_rtw_cfg80211_vendor_cmd_reply(struct sk_buff *skb
 #define rtw_cfg80211_vendor_cmd_reply(skb) \
 		dbg_rtw_cfg80211_vendor_cmd_reply(skb, MSTAT_FUNC_CFG_VENDOR|MSTAT_TYPE_SKB, __FUNCTION__, __LINE__)
 #else
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+
+#define rtw_cfg80211_vendor_event_alloc(wiphy, wdev, len, event_id, gfp) \
+	cfg80211_vendor_event_alloc(wiphy, wdev, len, event_id, gfp)
+
+#else
+
 #define rtw_cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp) \
 	cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp)
-	
+#endif
+
 #define rtw_cfg80211_vendor_event(skb, gfp) \
 	cfg80211_vendor_event(skb, gfp)
 	
@@ -159,7 +178,7 @@ int dbg_rtw_cfg80211_vendor_cmd_reply(struct sk_buff *skb
  * be used).
  */
 int rtw_cfgvendor_send_async_event(struct wiphy *wiphy,
-	struct net_device *dev, int event_id, const void  *data, int len)
+	struct wireless_dev *wdev, int event_id, const void  *data, int len)
 {
 	u16 kflags;
 	struct sk_buff *skb;
@@ -167,9 +186,15 @@ int rtw_cfgvendor_send_async_event(struct wiphy *wiphy,
 	kflags = in_atomic() ? GFP_ATOMIC : GFP_KERNEL;
 
 	/* Alloc the SKB for vendor_event */
-	skb = rtw_cfg80211_vendor_event_alloc(wiphy, len, event_id, kflags);
+	skb = rtw_cfg80211_vendor_event_alloc(wiphy, 
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+		wdev,
+#endif
+
+		len, event_id, kflags);
 	if (!skb) {
-		DBG_871X_LEVEL(_drv_err_, FUNC_NDEV_FMT" skb alloc failed", FUNC_NDEV_ARG(dev));
+		DBG_871X_LEVEL(_drv_err_, FUNC_NDEV_FMT" skb alloc failed", FUNC_NDEV_ARG(wdev_to_ndev(wdev)));
 		return -ENOMEM;
 	}
 
