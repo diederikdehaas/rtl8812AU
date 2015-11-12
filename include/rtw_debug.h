@@ -224,6 +224,16 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 #define RTW_DBGDUMP 0 /* 'stream' for _dbgdump */
 
 /* dump message to selected 'stream' */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
+#define DBG_871X_SEL(sel, fmt, arg...) \
+	do {\
+		if (sel == RTW_DBGDUMP)\
+			_DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
+		else {\
+			_seqdump(sel, fmt, ##arg); \
+		} \
+	}while(0)
+#else
 #define DBG_871X_SEL(sel, fmt, arg...) \
 	do {\
 		if (sel == RTW_DBGDUMP)\
@@ -232,8 +242,19 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/ { ; } \
 		} \
 	}while(0)
+#endif
 
 /* dump message to selected 'stream' with driver-defined prefix */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
+#define DBG_871X_SEL_NL(sel, fmt, arg...) \
+	do {\
+		if (sel == RTW_DBGDUMP)\
+			DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
+		else {\
+			_seqdump(sel, fmt, ##arg); \
+		} \
+	}while(0)
+#else
 #define DBG_871X_SEL_NL(sel, fmt, arg...) \
 	do {\
 		if (sel == RTW_DBGDUMP)\
@@ -242,6 +263,7 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/ { ; } \
 		} \
 	}while(0)
+#endif
 
 #endif /* defined(_seqdump) */
 
