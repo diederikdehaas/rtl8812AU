@@ -2,7 +2,7 @@ EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS)
 EXTRA_CFLAGS += -O1
 #EXTRA_CFLAGS += -O3
 EXTRA_CFLAGS += -Wall
-#EXTRA_CFLAGS += -Wextra
+EXTRA_CFLAGS += -Wextra
 #EXTRA_CFLAGS += -Werror
 #EXTRA_CFLAGS += -pedantic
 #EXTRA_CFLAGS += -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes
@@ -15,6 +15,10 @@ EXTRA_CFLAGS += -Wno-unused-function
 EXTRA_CFLAGS += -Wno-unused
 #EXTRA_CFLAGS += -Wno-uninitialized
 #EXTRA_CFLAGS += -Wno-error=date-time	# Fix compile error on gcc 4.9 and later
+
+# Relax some warnings from '-Wextra' so we won't get flooded with warnings
+EXTRA_CFLAGS += -Wno-sign-compare
+EXTRA_CFLAGS += -Wno-missing-field-initializers
 
 EXTRA_CFLAGS += -I$(src)/include
 EXTRA_CFLAGS += -I$(src)/hal/phydm
