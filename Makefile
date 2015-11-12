@@ -7,6 +7,14 @@ EXTRA_CFLAGS += -Wextra
 #EXTRA_CFLAGS += -pedantic
 #EXTRA_CFLAGS += -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes
 
+# The "$(call cc-option,-Wxxx)" macro only includes that option when it's
+# supported by the compiler used. It may only work on Debian systems.
+
+# Wdate-time was added in gcc-4.9
+EXTRA_CFLAGS += $(call cc-option,-Werror=date-time)
+# Wincompatible-pointer-types was added in gcc-5.0
+EXTRA_CFLAGS += $(call cc-option,-Werror=incompatible-pointer-types)
+
 EXTRA_CFLAGS += -Wno-unused-variable
 EXTRA_CFLAGS += -Wno-unused-value
 EXTRA_CFLAGS += -Wno-unused-label
