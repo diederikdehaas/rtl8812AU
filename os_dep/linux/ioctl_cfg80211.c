@@ -4329,7 +4329,7 @@ static int	cfg80211_rtw_change_station(struct wiphy *wiphy, struct net_device *n
 
 struct sta_info *rtw_sta_info_get_by_idx(const int idx, struct sta_priv *pstapriv)
 
-{
+{
 	_list	*phead, *plist;
 	struct sta_info *psta = NULL;
 	int i = 0;
