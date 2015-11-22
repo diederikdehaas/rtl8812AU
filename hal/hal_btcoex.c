@@ -3435,11 +3435,11 @@ hal_btcoex_AntIsolationConfig_ParaFile(
 	_rtw_memset(pHalData->para_file_buf, 0, MAX_PARA_FILE_BUF_LEN);
 
 
-	rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+	rtw_merge_string(phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 
-	if (rtw_is_file_readable(file_path) == _TRUE)
+	if (rtw_is_file_readable(phy_para_file_path) == _TRUE)
 	{
-		rlen = rtw_retrive_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+		rlen = rtw_retrive_from_file(phy_para_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
 		if (rlen > 0)
 		{
 			rtStatus = _SUCCESS;
