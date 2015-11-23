@@ -4221,8 +4221,10 @@ exit:
 static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev,
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0))
 				u8 *mac
-#else
+#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3,19,0))
 				const u8 *mac
+#else
+				struct station_del_parameters *params
 #endif
 			       )
 {
@@ -4230,12 +4232,19 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 	_irqL irqL;
 	_list	*phead, *plist;
 	u8 updated = _FALSE;
+	const u8 *target_mac;
 	struct sta_info *psta = NULL;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct sta_priv *pstapriv = &padapter->stapriv;
 
 	DBG_871X("+"FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,19,0))
+	target_mac = mac;
+#else
+	target_mac = params->mac;
+#endif
 
 	if(check_fwstate(pmlmepriv, (_FW_LINKED|WIFI_AP_STATE)) != _TRUE)		
 	{
@@ -4244,7 +4253,7 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 	}
 
 
-	if(!mac)
+	if(!target_mac)
 	{
 		DBG_8192C("flush all sta, and cam_entry\n");
 
@@ -4256,11 +4265,11 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 	}	
 
 
-	DBG_8192C("free sta macaddr =" MAC_FMT "\n", MAC_ARG(mac));
+	DBG_8192C("free sta macaddr =" MAC_FMT "\n", MAC_ARG(target_mac));
 
-	if (mac[0] == 0xff && mac[1] == 0xff &&
-	    mac[2] == 0xff && mac[3] == 0xff &&
-	    mac[4] == 0xff && mac[5] == 0xff) 
+	if (target_mac[0] == 0xff && target_mac[1] == 0xff &&
+	    target_mac[2] == 0xff && target_mac[3] == 0xff &&
+	    target_mac[4] == 0xff && target_mac[5] == 0xff)
 	{
 		return -EINVAL;	
 	}
@@ -4278,7 +4287,7 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 		
 		plist = get_next(plist);	
 	
-		if(_rtw_memcmp((u8 *)mac, psta->hwaddr, ETH_ALEN))		
+		if(_rtw_memcmp((u8 *)target_mac, psta->hwaddr, ETH_ALEN))
 		{
 			if(psta->dot8021xalg == 1 && psta->bpairwise_key_installed == _FALSE)
 			{
