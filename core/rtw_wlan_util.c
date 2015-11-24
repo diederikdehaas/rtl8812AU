@@ -2078,7 +2078,7 @@ int rtw_get_bcn_keys(ADAPTER *Adapter, u8 *pframe, u32 packet_len,
 
 	       _rtw_memcpy(recv_beacon->ssid, elems.ssid, elems.ssid_len);
 	       recv_beacon->ssid_len = elems.ssid_len;
-	} else; // means hidden ssid
+	} else { ; } // means hidden ssid
 
 	/* checking RSN first */
 	if (elems.rsn_ie && elems.rsn_ie_len) {

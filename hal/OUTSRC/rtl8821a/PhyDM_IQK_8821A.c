@@ -641,8 +641,9 @@ void _IQK_Tx_8821A(
 		
 		for (i = 0; i < RX_Average; i++){
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X0[0][%d] = %x ;; RX_Y0[0][%d] = %x\n", i, (RX_X0[0][i])>>21&0x000007ff, i, (RX_Y0[0][i])>>21&0x000007ff));
-			if (RXIQK_Loop == 2)
+			if (RXIQK_Loop == 2) {
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X0[1][%d] = %x ;; RX_Y0[1][%d] = %x\n", i, (RX_X0[1][i])>>21&0x000007ff, i, (RX_Y0[1][i])>>21&0x000007ff));
+			}
 		}
 		for (i = 0; i < RX_Average; i++){
 			for (ii = i+1; ii <RX_Average; ii++){
