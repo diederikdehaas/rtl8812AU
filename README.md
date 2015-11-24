@@ -6,3 +6,5 @@ But since then I found even newer versions released by Realtek and decided to us
 
 Currently there are the following branches, named after the initial Realtek driver version.
 - [version 4.3.8](https://github.com/diederikdehaas/rtl8812AU/tree/driver-4.3.8)
+- [version 4.3.14](https://github.com/diederikdehaas/rtl8812AU/tree/driver-4.3.14)
+- [version 4.3.22-beta](https://github.com/diederikdehaas/rtl8812AU/tree/driver-4.3.22-beta)
