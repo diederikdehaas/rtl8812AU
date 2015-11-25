@@ -2918,8 +2918,8 @@ int rtw_is_phy_file_readable(const char *hal_file_name)
 {
 #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 	if (hal_file_name) {
-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, hal_file_name);
-		return rtw_is_file_readable(file_path);
+		rtw_merge_string(phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, hal_file_name);
+		return rtw_is_file_readable(phy_para_file_path);
 	}
 #endif
 	return _FALSE;
@@ -2944,11 +2944,11 @@ phy_ConfigMACWithParaFile(
 
 	if ((pHalData->mac_reg_len == 0) && (pHalData->mac_reg == NULL))
 	{
-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+		rtw_merge_string(phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 	
-		if (rtw_is_file_readable(file_path) == _TRUE)
+		if (rtw_is_file_readable(phy_para_file_path) == _TRUE)
 		{
-			rlen = rtw_retrieve_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+			rlen = rtw_retrieve_from_file(phy_para_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
 			if (rlen > 0)
 			{
 				rtStatus = _SUCCESS;
@@ -3043,11 +3043,11 @@ phy_ConfigBBWithParaFile(
 
 	if ((pBufLen != NULL) && (*pBufLen == 0) && (pBuf == NULL))
 	{
-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+		rtw_merge_string(phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 	
-		if (rtw_is_file_readable(file_path) == _TRUE)
+		if (rtw_is_file_readable(phy_para_file_path) == _TRUE)
 		{
-			rlen = rtw_retrieve_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+			rlen = rtw_retrieve_from_file(phy_para_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
 			if (rlen > 0)
 			{
 				rtStatus = _SUCCESS;
@@ -3495,11 +3495,11 @@ phy_ConfigBBWithPgParaFile(
 	_rtw_memset(pHalData->para_file_buf, 0, MAX_PARA_FILE_BUF_LEN);
 
 	if (pHalData->bb_phy_reg_pg == NULL) {
-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+		rtw_merge_string(phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 	
-		if (rtw_is_file_readable(file_path) == _TRUE)
+		if (rtw_is_file_readable(phy_para_file_path) == _TRUE)
 		{
-			rlen = rtw_retrieve_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+			rlen = rtw_retrieve_from_file(phy_para_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
 			if (rlen > 0)
 			{
 				rtStatus = _SUCCESS;
@@ -3556,11 +3556,11 @@ phy_ConfigBBWithMpParaFile(
 
 	if ((pHalData->bb_phy_reg_mp_len == 0) && (pHalData->bb_phy_reg_mp == NULL))
 	{
-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+		rtw_merge_string(phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 	
-		if (rtw_is_file_readable(file_path) == _TRUE)
+		if (rtw_is_file_readable(phy_para_file_path) == _TRUE)
 		{
-			rlen = rtw_retrieve_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+			rlen = rtw_retrieve_from_file(phy_para_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
 			if (rlen > 0)
 			{
 				rtStatus = _SUCCESS;
@@ -3692,11 +3692,11 @@ PHY_ConfigRFWithParaFile(
 
 	if ((pBufLen != NULL) && (*pBufLen == 0) && (pBuf == NULL))
 	{
-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+		rtw_merge_string(phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 
-		if (rtw_is_file_readable(file_path) == _TRUE)
+		if (rtw_is_file_readable(phy_para_file_path) == _TRUE)
 		{
-			rlen = rtw_retrieve_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+			rlen = rtw_retrieve_from_file(phy_para_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
 			if (rlen > 0)
 			{
 				rtStatus = _SUCCESS;
@@ -3970,11 +3970,11 @@ PHY_ConfigRFWithTxPwrTrackParaFile(
 
 	if ((pHalData->rf_tx_pwr_track_len == 0) && (pHalData->rf_tx_pwr_track == NULL))
 	{
-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+		rtw_merge_string(phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 	
-		if (rtw_is_file_readable(file_path) == _TRUE)
+		if (rtw_is_file_readable(phy_para_file_path) == _TRUE)
 		{
-			rlen = rtw_retrieve_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+			rlen = rtw_retrieve_from_file(phy_para_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
 			if (rlen > 0)
 			{
 				rtStatus = _SUCCESS;
@@ -4342,11 +4342,11 @@ PHY_ConfigRFWithPowerLimitTableParaFile(
 	_rtw_memset(pHalData->para_file_buf, 0, MAX_PARA_FILE_BUF_LEN);
 
 	if (pHalData->rf_tx_pwr_lmt == NULL) {
-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+		rtw_merge_string(phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 	
-		if (rtw_is_file_readable(file_path) == _TRUE)
+		if (rtw_is_file_readable(phy_para_file_path) == _TRUE)
 		{
-			rlen = rtw_retrieve_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+			rlen = rtw_retrieve_from_file(phy_para_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
 			if (rlen > 0)
 			{
 				rtStatus = _SUCCESS;
