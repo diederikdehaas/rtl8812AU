@@ -1139,8 +1139,9 @@ phydm_Beamforming_Notify(
 			/*if (pSoundInfo->SoundMode == SOUNDING_SW_VHT_TIMER || pSoundInfo->SoundMode == SOUNDING_SW_HT_TIMER)
 				ODM_SetTimer(pDM_Odm, &pBeamInfo->BeamformingTimer, pSoundInfo->SoundPeriod);*/
 			ODM_SetTimer(pDM_Odm, &pBeamInfo->BeamformingTimer, 1000); /*Do MU sounding every 1sec*/
-		} else
+		} else {
 			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s: Less or larger than 2 MU STAs, not to set timer\n", __func__));
+		}
 	break;
 
 	case BEAMFORMEE_NOTIFY_DELETE_MU:
@@ -1257,8 +1258,9 @@ Beamforming_InitEntry(
 		
 		if (pBeamformerEntry == NULL) {
 			pBeamformerEntry = Beamforming_AddBFerEntry(pDM_Odm, pSTA, BeamformCap, NumofSoundingDim , &BFerIdx);
-			if (pBeamformerEntry == NULL)
+			if (pBeamformerEntry == NULL) {
 				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s]Not enough BFer entry!!!!!\n", __func__));
+			}
 		}
 	}
 
@@ -1274,17 +1276,19 @@ Beamforming_InitEntry(
 
 			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s]: Add BFee entry %d\n", __func__, BFeeIdx));
 
-			if (pBeamformEntry == NULL)
+			if (pBeamformEntry == NULL) {
 				return FALSE;
-			else
+			} else {
 				pBeamformEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_INITIALIZEING;
+			}
 		} else {
 			/*Entry has been created. If entry is initialing or progressing then errors occur.*/
 			if (pBeamformEntry->BeamformEntryState != BEAMFORMING_ENTRY_STATE_INITIALIZED && 
 				pBeamformEntry->BeamformEntryState != BEAMFORMING_ENTRY_STATE_PROGRESSED) {
 				return FALSE;
-			} else
+			} else {
 				pBeamformEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_INITIALIZEING;
+			}
 		}
 		pBeamformEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_INITIALIZED;
 		phydm_staInfoUpdate(pDM_Odm, staIdx, pBeamformEntry);
@@ -1669,20 +1673,22 @@ Beamforming_TimerCallback(
 
 	ret = phydm_Beamforming_SelectBeamEntry(pDM_Odm, pBeamInfo);
 #if (SUPPORT_MU_BF == 1)
-	if (ret && pBeamInfo->beamformee_mu_cnt > 1)
+	if (ret && pBeamInfo->beamformee_mu_cnt > 1) {
 		ret = 1;
-	else
+	} else {
 		ret = 0;
+	}
 #endif
-	if (ret)
+	if (ret) {
 		ret = BeamformingStart_SW(pDM_Odm, pSoundInfo->SoundIdx, pSoundInfo->SoundMode, pSoundInfo->SoundBW);
-	else
+	} else {
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s, Error value return from BeamformingStart_V2\n", __func__));
+	}
 
 	if ((pBeamInfo->beamformee_su_cnt != 0) || (pBeamInfo->beamformee_mu_cnt > 1)) {
-		if (pSoundInfo->SoundMode == SOUNDING_SW_VHT_TIMER || pSoundInfo->SoundMode == SOUNDING_SW_HT_TIMER)
+		if (pSoundInfo->SoundMode == SOUNDING_SW_VHT_TIMER || pSoundInfo->SoundMode == SOUNDING_SW_HT_TIMER) {
 			ODM_SetTimer(pDM_Odm, &pBeamInfo->BeamformingTimer, pSoundInfo->SoundPeriod);
-		else {
+		} else {
 			u4Byte	val = (pSoundInfo->SoundPeriod << 16) | HAL_TIMER_TXBF;
 			Adapter->HalFunc.SetHwRegHandler(Adapter, HW_VAR_HW_REG_TIMER_RESTART, (pu1Byte)(&val));
 		}

@@ -571,8 +571,9 @@ odm_PauseDIG(
 		
 			/* Calculate the maximum level now */
 			for (max_level = (pause_level - 1); max_level >= 0; max_level--) {
-				if ((pDM_DigTable->pause_dig_level & BIT(max_level)) > 0)
+				if ((pDM_DigTable->pause_dig_level & BIT(max_level)) > 0) {
 					break;
+				}
 			}
 		
 			/* write IGI of lower level */
@@ -1733,8 +1734,9 @@ odm_PauseCCKPacketDetection(
 		
 			/* Calculate the maximum level now */
 			for (max_level = (pause_level - 1); max_level >= 0; max_level--) {
-				if ((pDM_DigTable->pause_cckpd_level & BIT(max_level)) > 0)
+				if ((pDM_DigTable->pause_cckpd_level & BIT(max_level)) > 0) {
 					break;
+				}
 			}
 		
 			/* write CCKPD of lower level */
