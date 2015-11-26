@@ -642,8 +642,9 @@ void _IQK_Tx_8821A(
 		
 		for (i = 0; i < RX_Average; i++){
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X0[0][%d] = %x ;; RX_Y0[0][%d] = %x\n", i, (RX_X0[0][i])>>21&0x000007ff, i, (RX_Y0[0][i])>>21&0x000007ff));
-			if (RXIQK_Loop == 2)
+			if (RXIQK_Loop == 2) {
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X0[1][%d] = %x ;; RX_Y0[1][%d] = %x\n", i, (RX_X0[1][i])>>21&0x000007ff, i, (RX_Y0[1][i])>>21&0x000007ff));
+			}
 		}
 		for (i = 0; i < RX_Average; i++){
 			for (ii = i+1; ii <RX_Average; ii++){
@@ -713,20 +714,22 @@ phy_IQCalibrate_By_FW_8821A(
 
 
 //Byte 2, Bit 4 ~ Bit 5 : BandType
-	if(*pDM_Odm->pBandType)
+	if(*pDM_Odm->pBandType) {
 		Buf1 = 0x2<<4;
-	else
+	} else {
 		Buf1 = 0x1<<4;
+	}
 
 //Byte 2, Bit 0 ~ Bit 3 : Bandwidth
-	if(*pDM_Odm->pBandWidth == ODM_BW20M)
+	if(*pDM_Odm->pBandWidth == ODM_BW20M) {
 		Buf2 = 0x1;
-	else if(*pDM_Odm->pBandWidth == ODM_BW40M)
+	} else if(*pDM_Odm->pBandWidth == ODM_BW40M) {
 		Buf2 = 0x1<<1;
-	else if(*pDM_Odm->pBandWidth == ODM_BW80M)
+	} else if(*pDM_Odm->pBandWidth == ODM_BW80M) {
 		Buf2 = 0x1<<2;
-	else
+	} else {
 		Buf2 = 0x1<<3;
+	}
 	
 	IQKcmd[1] = Buf1 | Buf2;
 	IQKcmd[2] = pDM_Odm->ExtPA5G | pDM_Odm->ExtLNA5G<<1;

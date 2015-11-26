@@ -1834,16 +1834,17 @@ phydm_fw_trace_handler_code(
 		}
 		
 		else if(dbg_num == 3) {
-			if (content_0 == 1)
+			if (content_0 == 1) {
 				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW][RateDecisoin] Fast_RA (( DOWN ))  total=((%d)),  total>>1=((%d)), R4+R3+R2 = ((%d)), RateDownHold = ((%d))\n", content_1, content_2, content_3, content_4));
-			else if (content_0 == 2)
+			} else if (content_0 == 2) {
 				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW][RateDecisoin] Fast_RA (( UP ))  total_acc=((%d)),  total_acc>>1=((%d)), R4+R3+R2 = ((%d)), RateDownHold = ((%d))\n", content_1, content_2, content_3, content_4));
-			else if (content_0 == 3)
+			} else if (content_0 == 3) {
 				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW][RateDecisoin] Fast_RA (( UP )) ((Rate Down Hold))  RA_CNT=((%d))\n", content_1));
-			else if (content_0 == 4)
+			} else if (content_0 == 4) {
 				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW][RateDecisoin] Fast_RA (( UP )) ((tota_accl<5 skip))  RA_CNT=((%d))\n", content_1));
-			else if (content_0 == 8)
+			} else if (content_0 == 8) {
 				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW][RateDecisoin] Fast_RA (( Reset Tx Rpt )) RA_CNT=((%d))\n", content_1));
+			}
 		}
 		
 		else if(dbg_num == 5) {
@@ -1885,10 +1886,11 @@ phydm_fw_trace_handler_code(
 				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW][RateUp]  ((Highest rate -> return)), macid=((%d))  Nsc=((%d))\n", content_1, content_2));
 			}
 		} else if(dbg_num == 5) {
-			if (content_0 == 0)
+			if (content_0 == 0) {
 				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW][RateUp]  ((Rate UP)), up_rate_tmp=((0x%x)), rate_idx=((0x%x)), SGI_en=((%d)),  SGI=((%d))\n", content_1, content_2, content_3, content_4));
-			else if (content_0 == 1)
+			} else if (content_0 == 1) {
 				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW][RateUp]  ((Rate UP)), rate_1=((0x%x)), rate_2=((0x%x)), BW=((%d)), Try_Bit=((%d))\n", content_1, content_2, content_3, content_4));
+			}
 		}
 		
 	} 
@@ -1906,8 +1908,9 @@ phydm_fw_trace_handler_code(
 				/**/
 			}
 		} else if (dbg_num == 2) {
-			if (content_0 == 1)
+			if (content_0 == 1) {
 				ODM_RT_TRACE(pDM_Odm, ODM_FW_DEBUG_TRACE, ODM_DBG_LOUD, ("[FW][Try Done]  ((try fail )) macid=((%d)), Try_Done_cnt=((%d)),  multi_try_rate=((%d))\n", content_1, content_2, content_3));
+			}
 		}
 	}
 	/*--------------------------------------------*/

@@ -117,10 +117,11 @@ halTxbfJaguar_DownloadNDPA(
 		ODM_Write1Byte(pDM_Odm, REG_TDECTRL_8812A + 2, (BcnValidReg | BIT0));
 
 		/*download NDPA rsvd page.*/
-		if (pBeamEntry->BeamformEntryCap & BEAMFORMER_CAP_VHT_SU)
+		if (pBeamEntry->BeamformEntryCap & BEAMFORMER_CAP_VHT_SU) {
 			Beamforming_SendVHTNDPAPacket(pDM_Odm, pBeamEntry->MacAddr, pBeamEntry->AID, pBeamEntry->SoundBW, BEACON_QUEUE);
-		else
+		} else {
 			Beamforming_SendHTNDPAPacket(pDM_Odm, pBeamEntry->MacAddr, pBeamEntry->SoundBW, BEACON_QUEUE);
+		}
 
 		/*check rsvd page download OK.*/
 		BcnValidReg = ODM_Read1Byte(pDM_Odm, REG_TDECTRL_8812A + 2);
@@ -133,8 +134,9 @@ halTxbfJaguar_DownloadNDPA(
 		DLBcnCount++;
 	} while (!(BcnValidReg & BIT0) && DLBcnCount < 5);
 
-	if (!(BcnValidReg & BIT0))
+	if (!(BcnValidReg & BIT0)) {
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Download RSVD page failed!\n", __func__));
+	}
 
 	/*TDECTRL[15:8] 0x209[7:0] = 0xF6	Beacon Head for TXDMA*/
 	ODM_Write1Byte(pDM_Odm, REG_TDECTRL_8812A + 1, TxPageBndy);
@@ -144,8 +146,9 @@ halTxbfJaguar_DownloadNDPA(
 	/*prevent from setting 0x422[6] to 0 after download reserved page, or it will cause*/
 	/*the beacon cannot be sent by HW.*/
 	/*2010.06.23. Added by tynli.*/
-	if (bSendBeacon)
+	if (bSendBeacon) {
 		ODM_Write1Byte(pDM_Odm, REG_FWHW_TXQ_CTRL_8812A + 2, tmpReg422);
+	}
 
 	/*Do not enable HW DMA BCN or it will cause Pcie interface hang by timing issue. 2011.11.24. by tynli.*/
 	/*Clear CR[8] or beacon packet will not be send to TxBuf anymore.*/
@@ -174,16 +177,18 @@ halTxbfJaguar_FwTxBFCmd(
 		/*Modified by David*/
 		if (pBeamInfo->BeamformeeEntry[Idx].bUsed && pBeamInfo->BeamformeeEntry[Idx].BeamformEntryState == BEAMFORMING_ENTRY_STATE_PROGRESSED) {
 			if (Idx == 0) {
-				if (pBeamInfo->BeamformeeEntry[Idx].bSound)
+				if (pBeamInfo->BeamformeeEntry[Idx].bSound) {
 					PageNum0 = 0xFE;
-				else
+				} else {
 					PageNum0 = 0xFF; /*stop sounding*/
+				}
 				Period0 = (u1Byte)(pBeamInfo->BeamformeeEntry[Idx].SoundPeriod);
 			} else if (Idx == 1) {
-				if (pBeamInfo->BeamformeeEntry[Idx].bSound)
+				if (pBeamInfo->BeamformeeEntry[Idx].bSound) {
 					PageNum1 = 0xFE;
-				else
+				} else {
 					PageNum1 = 0xFF; /*stop sounding*/
+				}
 				Period1 = (u1Byte)(pBeamInfo->BeamformeeEntry[Idx].SoundPeriod);
 			}
 		}
@@ -219,10 +224,11 @@ HalTxbfJaguar_Enter(
 
 	halTxbfJaguar_RfMode(pDM_Odm, pBeamformingInfo);
 
-	if (pDM_Odm->RFType == ODM_2T2R)
+	if (pDM_Odm->RFType == ODM_2T2R) {
 		ODM_SetBBReg(pDM_Odm, ODM_REG_CSI_CONTENT_VALUE, bMaskDWord, 0x00000000);	/*Nc =2*/
-	else
+	} else {
 		ODM_SetBBReg(pDM_Odm, ODM_REG_CSI_CONTENT_VALUE, bMaskDWord, 0x01081008);	/*Nc =1*/
+	}
 
 	if ((pBeamformingInfo->beamformer_su_cnt > 0) && (BFerIdx < BEAMFORMER_ENTRY_NUM)) {
 		BeamformerEntry = pBeamformingInfo->BeamformerEntry[BFerIdx];
@@ -245,15 +251,17 @@ HalTxbfJaguar_Enter(
 
 		/*CSI report parameters of Beamformee*/
 		if (BeamformerEntry.BeamformEntryCap & BEAMFORMEE_CAP_VHT_SU) {
-			if (pDM_Odm->RFType == ODM_2T2R)
+			if (pDM_Odm->RFType == ODM_2T2R) {
 				CSI_Param = 0x01090109;
-			else
+			} else {
 				CSI_Param = 0x01080108;
+			}
 		} else {
-			if (pDM_Odm->RFType == ODM_2T2R)
+			if (pDM_Odm->RFType == ODM_2T2R) {
 				CSI_Param = 0x03090309;
-			else
+			} else {
 				CSI_Param = 0x03080308;
+			}
 		}
 
 		ODM_Write4Byte(pDM_Odm, REG_CSI_RPT_PARAM_BW20_8812A, CSI_Param);
@@ -268,17 +276,19 @@ HalTxbfJaguar_Enter(
 	if ((pBeamformingInfo->beamformee_su_cnt > 0) && (BFeeIdx < BEAMFORMEE_ENTRY_NUM)) {
 		BeamformeeEntry = pBeamformingInfo->BeamformeeEntry[BFeeIdx];
 
-		if (phydm_actingDetermine(pDM_Odm, PhyDM_ACTING_AS_IBSS))
+		if (phydm_actingDetermine(pDM_Odm, PhyDM_ACTING_AS_IBSS)) {
 			STAid = BeamformeeEntry.MacId;
-		else
+		} else {
 			STAid = BeamformeeEntry.P_AID;
+		}
 
 		/*P_AID of Beamformee & enable NDPA transmission & enable NDPA interrupt*/
 		if (BFeeIdx == 0) {
 			ODM_Write2Byte(pDM_Odm, REG_TXBF_CTRL_8812A, STAid);
 			ODM_Write1Byte(pDM_Odm, REG_TXBF_CTRL_8812A + 3, ODM_Read1Byte(pDM_Odm, REG_TXBF_CTRL_8812A + 3) | BIT4 | BIT6 | BIT7);
-		} else
+		} else {
 			ODM_Write2Byte(pDM_Odm, REG_TXBF_CTRL_8812A + 2, STAid | BIT12 | BIT14 | BIT15);
+		}
 
 		/*CSI report parameters of Beamformee*/
 		if (BFeeIdx == 0) {
@@ -310,8 +320,9 @@ HalTxbfJaguar_Leave(
 	if (Idx < BEAMFORMER_ENTRY_NUM) {
 		BeamformerEntry = pBeamformingInfo->BeamformerEntry[Idx];
 		BeamformeeEntry = pBeamformingInfo->BeamformeeEntry[Idx];
-	} else
+	} else {
 		return;
+	}
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s]Start!, IDx = %d\n", __func__, Idx));
 
@@ -362,27 +373,30 @@ HalTxbfJaguar_Status(
 	PRT_BEAMFORMING_INFO	pBeamInfo = &pDM_Odm->BeamformingInfo;
 	RT_BEAMFORMEE_ENTRY	BeamformEntry = pBeamInfo->BeamformeeEntry[Idx];
 
-	if (phydm_actingDetermine(pDM_Odm, PhyDM_ACTING_AS_IBSS))
+	if (phydm_actingDetermine(pDM_Odm, PhyDM_ACTING_AS_IBSS)) {
 		BeamCtrlVal = BeamformEntry.MacId;
-	else
+	} else {
 		BeamCtrlVal = BeamformEntry.P_AID;
+	}
 
-	if (Idx == 0)
+	if (Idx == 0) {
 		BeamCtrlReg = REG_TXBF_CTRL_8812A;
-	else {
+	} else {
 		BeamCtrlReg = REG_TXBF_CTRL_8812A + 2;
 		BeamCtrlVal |= BIT12 | BIT14 | BIT15;
 	}
 
 	if (BeamformEntry.BeamformEntryState == BEAMFORMING_ENTRY_STATE_PROGRESSED) {
-		if (BeamformEntry.SoundBW == CHANNEL_WIDTH_20)
+		if (BeamformEntry.SoundBW == CHANNEL_WIDTH_20) {
 			BeamCtrlVal |= BIT9;
-		else if (BeamformEntry.SoundBW == CHANNEL_WIDTH_40)
+		} else if (BeamformEntry.SoundBW == CHANNEL_WIDTH_40) {
 			BeamCtrlVal |= (BIT9 | BIT10);
-		else if (BeamformEntry.SoundBW == CHANNEL_WIDTH_80)
+		} else if (BeamformEntry.SoundBW == CHANNEL_WIDTH_80) {
 			BeamCtrlVal |= (BIT9 | BIT10 | BIT11);
-	} else
+		}
+	} else {
 		BeamCtrlVal &= ~(BIT9 | BIT10 | BIT11);
+	}
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] BeamCtrlVal = 0x%x!\n", __func__, BeamCtrlVal));
 
@@ -403,8 +417,9 @@ HalTxbfJaguar_FwTxBF(
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 
-	if (pBeamEntry->BeamformEntryState == BEAMFORMING_ENTRY_STATE_PROGRESSING)
+	if (pBeamEntry->BeamformEntryState == BEAMFORMING_ENTRY_STATE_PROGRESSING) {
 		halTxbfJaguar_DownloadNDPA(pDM_Odm, Idx);
+	}
 
 	halTxbfJaguar_FwTxBFCmd(pDM_Odm);
 }

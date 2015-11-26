@@ -201,10 +201,11 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 #define DBG_871X_LEVEL(level, fmt, arg...)     \
 	do {\
 		if (level <= GlobalDebugLevel) {\
-			if (level <= _drv_err_ && level > _drv_always_) \
+			if (level <= _drv_err_ && level > _drv_always_) {\
 				_dbgdump(DRIVER_PREFIX"ERROR " fmt, ##arg);\
-			else \
+			} else {\
 				_dbgdump(DRIVER_PREFIX fmt, ##arg);\
+			}\
 		}\
 	}while(0)
 
@@ -213,10 +214,11 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 #define _DBG_871X_LEVEL(level, fmt, arg...)	   \
 	do {\
 		if (level <= GlobalDebugLevel) {\
-			if (level <= _drv_err_ && level > _drv_always_) \
+			if (level <= _drv_err_ && level > _drv_always_) { \
 				_dbgdump("ERROR " fmt, ##arg);\
-			else \
+			} else {\
 				_dbgdump(fmt, ##arg);\
+			}\
 		}\
 	}while(0)
 
@@ -227,20 +229,20 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
 #define DBG_871X_SEL(sel, fmt, arg...) \
 	do {\
-		if (sel == RTW_DBGDUMP)\
+		if (sel == RTW_DBGDUMP) {\
 			_DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
-		else {\
+		} else {\
 			_seqdump(sel, fmt, ##arg); \
-		} \
+		}\
 	}while(0)
 #else
 #define DBG_871X_SEL(sel, fmt, arg...) \
 	do {\
-		if (sel == RTW_DBGDUMP)\
+		if (sel == RTW_DBGDUMP) {\
 			_DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
-		else {\
-			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/; \
-		} \
+		} else {\
+			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/ { ; } \
+		}\
 	}while(0)
 #endif
 
@@ -248,20 +250,20 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
 #define DBG_871X_SEL_NL(sel, fmt, arg...) \
 	do {\
-		if (sel == RTW_DBGDUMP)\
+		if (sel == RTW_DBGDUMP) {\
 			DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
-		else {\
+		} else {\
 			_seqdump(sel, fmt, ##arg); \
-		} \
+		}\
 	}while(0)
 #else
 #define DBG_871X_SEL_NL(sel, fmt, arg...) \
 	do {\
-		if (sel == RTW_DBGDUMP)\
+		if (sel == RTW_DBGDUMP) {\
 			DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
-		else {\
-			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/; \
-		} \
+		} else {\
+			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/ { ; } \
+		}\
 	}while(0)
 #endif
 
