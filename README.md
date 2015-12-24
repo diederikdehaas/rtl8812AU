@@ -13,3 +13,30 @@ Currently there are the following branches, named after the initial Realtek driv
 The driver (versions) are primarily targetted at [Debian](https://www.debian.org) and [Raspbian](https://www.raspbian.org), but I have no reason to assume it won't work for other distrubutions. If fixes are needed for other distrubution with no negative effect on Debian or Raspbian, I'll gladly incorporate those into my repository.
 
 I have currently successfully compiled the driver on Debian kernel 3.2, 3.16, 4.1, 4.2 and 4.3 and on Raspbian with kernel 3.18 and 4.1.
+
+## DKMS
+[DKMS](http://linux.dell.com/dkms/) is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated.
+To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
+```
+# apt-get install dkms
+```
+Where '#' denotes that it should be executed as root or with sudo, but don't type that character.
+
+To make use of the DKMS feature with this project, do the following:
+```
+# DRV_NAME=rtl8812AU
+# DRV_VERSION=4.3.14
+# mkdir /usr/src/${DRV_NAME}-${DRV_VERSION}
+# git archive driver-${DRV_VERSION} | tar -x -C /usr/src/${DRV_NAME}-${DRV_VERSION}
+# dkms add -m ${DRV_NAME} -v ${DRV_VERSION}
+# dkms build -m ${DRV_NAME} -v ${DRV_VERSION}
+# dkms install -m ${DRV_NAME} -v ${DRV_VERSION}
+```
+Whereby it is assumed you're in the cloned project directory and the current branch is `driver-4.3.14` (the default). If you want to use another driver version, adjust `DRV_VERSION` accordingly.
+
+If you later on want to remove it again, do the following:
+```
+# DRV_NAME=rtl8812AU
+# DRV_VERSION=4.3.14
+# dkms remove ${DRV_NAME}/${DRV_VERSION} --all
+```
