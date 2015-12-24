@@ -1510,6 +1510,8 @@ ifneq ($(USER_MODULE_NAME),)
 MODULE_NAME := $(USER_MODULE_NAME)
 endif
 
+export CONFIG_RTL8821AU = m
+
 ifneq ($(KERNELRELEASE),)
 
 rtk_core :=	core/rtw_cmd.o \
@@ -1563,8 +1565,6 @@ endif
 ifeq ($(CONFIG_RTL8821A), y)
 $(MODULE_NAME)-$(CONFIG_MP_INCLUDED)+= core/rtw_bt_mp.o
 endif
-
-export CONFIG_RTL8821AU = m
 
 obj-$(CONFIG_RTL8821AU) := $(MODULE_NAME).o
 
