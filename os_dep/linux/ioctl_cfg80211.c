@@ -6280,7 +6280,13 @@ static void rtw_cfg80211_init_ht_capab(_adapter *padapter, struct ieee80211_sta_
 
 	ht_cap->ht_supported = _TRUE;
 
-	ht_cap->cap = IEEE80211_HT_CAP_SUP_WIDTH_20_40 |
+	/* According to the comment in rtw_ap.c:
+	 * "Note: currently we switch to the MIXED op mode if HT non-greenfield
+	 * station is associated. Probably it's a theoretical case, since
+	 * it looks like all known HT STAs support greenfield."
+	 * Therefore Greenfield is added to ht_cap
+	 */
+	ht_cap->cap = IEEE80211_HT_CAP_SUP_WIDTH_20_40 | IEEE80211_HT_CAP_GRN_FLD |
 	    				IEEE80211_HT_CAP_SGI_40 | IEEE80211_HT_CAP_SGI_20 |
 	    				IEEE80211_HT_CAP_DSSSCCK40 | IEEE80211_HT_CAP_MAX_AMSDU;
 	rtw_cfg80211_init_ht_capab_ex(padapter, ht_cap, band, rf_type);
@@ -6328,6 +6334,92 @@ static void rtw_cfg80211_init_ht_capab(_adapter *padapter, struct ieee80211_sta_
 	
 }
 
+static void rtw_cfg80211_init_vht_capab_ex(_adapter *padapter, struct ieee80211_sta_vht_cap *vht_cap, u8 rf_type)
+{
+//todo: Support for other bandwidths
+
+/* NSS = Number of Spatial Streams */
+#define MAX_BIT_RATE_80MHZ_NSS3		1300	/* Mbps */
+#define MAX_BIT_RATE_80MHZ_NSS2		867		/* Mbps */
+#define MAX_BIT_RATE_80MHZ_NSS1		434		/* Mbps */
+
+	struct registry_priv *pregistrypriv = &padapter->registrypriv;
+	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
+	struct vht_priv	*pvhtpriv = &pmlmepriv->vhtpriv;
+
+	rtw_vht_use_default_setting(padapter);
+
+	/* RX LDPC */
+	if (TEST_FLAG(pvhtpriv->ldpc_cap, LDPC_VHT_ENABLE_RX))
+		vht_cap->cap |= IEEE80211_VHT_CAP_RXLDPC;
+
+	/* TX STBC */
+	if (TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_TX))
+		vht_cap->cap |= IEEE80211_VHT_CAP_TXSTBC;
+
+	/* RX STBC */
+	if (TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_RX)) {
+		switch (rf_type) {
+		case RF_1T1R:
+			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_1;/*RX STBC One spatial stream*/
+			break;
+		case RF_2T2R:
+		case RF_1T2R:
+			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_2;/*RX STBC Two spatial streams*/
+			break;
+		case RF_3T3R:
+		case RF_3T4R:
+		case RF_4T4R:
+			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_3;/*RX STBC Three spatial streams*/
+			break;
+		default:
+			DBG_871X("[warning] rf_type %d is not expected\n", rf_type);
+			break;
+		}
+	}
+
+	/* switch (rf_type) {
+	case RF_1T1R:
+		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+		break;
+	case RF_2T2R:
+	case RF_1T2R:
+		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS2;
+		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS2;
+		break;
+	case RF_3T3R:
+	case RF_3T4R:
+	case RF_4T4R:
+		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS3;
+		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS3;
+		break;
+	default:
+		DBG_871X("[warning] rf_type %d is not expected\n", rf_type);
+		break;
+	} */
+
+	/* MCS map */
+	vht_cap->vht_mcs.tx_mcs_map = pvhtpriv->vht_mcs_map[0] | (pvhtpriv->vht_mcs_map[1] << 8);
+	vht_cap->vht_mcs.rx_mcs_map = vht_cap->vht_mcs.tx_mcs_map;
+
+	if (rf_type == RF_1T1R) {
+		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+	}
+
+	if (pvhtpriv->sgi_80m)
+		vht_cap->cap |= IEEE80211_VHT_CAP_SHORT_GI_80;
+
+	vht_cap->cap |= (pvhtpriv->ampdu_len << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT);
+}
+
+static void rtw_cfg80211_init_vht_capab(_adapter *padapter, struct ieee80211_sta_vht_cap *vht_cap, u8 rf_type)
+{
+	vht_cap->vht_supported = _TRUE;
+	rtw_cfg80211_init_vht_capab_ex(padapter, vht_cap, rf_type);
+}
+
 void rtw_cfg80211_init_wiphy(_adapter *padapter)
 {
 	u8 rf_type;
@@ -6347,8 +6439,10 @@ void rtw_cfg80211_init_wiphy(_adapter *padapter)
 #ifdef CONFIG_IEEE80211_BAND_5GHZ
 	if (IsSupported5G(padapter->registrypriv.wireless_mode)) {	
 		bands = wiphy->bands[IEEE80211_BAND_5GHZ];
-		if(bands)
+		if(bands) {
 			rtw_cfg80211_init_ht_capab(padapter, &bands->ht_cap, IEEE80211_BAND_5GHZ, rf_type);
+			rtw_cfg80211_init_vht_capab(padapter, &bands->vht_cap, rf_type);
+		}
 	}
 #endif
 	/* init regulary domain */
