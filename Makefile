@@ -136,6 +136,7 @@ CONFIG_PLATFORM_MOZART = n
 CONFIG_PLATFORM_RTK119X = n
 CONFIG_PLATFORM_NOVATEK_NT72668 = n
 CONFIG_PLATFORM_HISILICON = n
+CONFIG_PLATFORM_ARM64 = n
 ###############################################################
 
 CONFIG_DRVEXT_MODULE = n
@@ -1606,6 +1607,17 @@ CROSS_COMPILE := arm-linux-gnueabihf-
 KVER := 3.8.0
 KSRC := /Custom/Novatek/TCL/linux-3.8_header
 #KSRC := $(KERNELDIR)
+endif
+
+ifeq ($(CONFIG_PLATFORM_ARM64), y)
+ARCH := arm64
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+CROSS_COMPILE := aarch64-linux-gnu-
+KVER ?= $(shell uname -r)
+KSRC := /lib/modules/$(KVER)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+INSTALL_PREFIX :=
 endif
 
 ifeq ($(CONFIG_MULTIDRV), y)
