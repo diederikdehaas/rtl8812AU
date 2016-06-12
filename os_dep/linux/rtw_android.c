@@ -577,7 +577,12 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 			goto exit;
 	}
 #ifdef CONFIG_COMPAT
-	if (is_compat_task()) {
+#ifdef in_compat_syscall
+    if (in_compat_syscall())
+#else
+	if (is_compat_task())
+#endif
+	{
 		/* User space is 32-bit, use compat ioctl */
 		compat_android_wifi_priv_cmd compat_priv_cmd;
 
