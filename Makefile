@@ -74,6 +74,8 @@ CONFIG_BR_EXT = y
 CONFIG_ANTENNA_DIVERSITY = n
 CONFIG_TDLS = n
 CONFIG_WIFI_MONITOR = y
+# Choose y below to disable the code in os_dep/linux/ wifi_regd.c, likely needed when using hostapd in 802.11ac mode
+CONFIG_DISABLE_REGD_C = n 
 ######################## Wake On Lan ##########################
 CONFIG_WOWLAN = n
 CONFIG_GPIO_WAKEUP = n
@@ -143,6 +145,10 @@ CONFIG_DRVEXT_MODULE = n
 export TopDIR ?= $(shell pwd)
 
 ########### COMMON  #################################
+ifeq ($(CONFIG_DISABLE_REGD_C), y)
+EXTRA_CFLAGS += -DCONFIG_DISABLE_REGD_C
+endif
+
 ifeq ($(CONFIG_GSPI_HCI), y)
 HCI_NAME = gspi
 endif
