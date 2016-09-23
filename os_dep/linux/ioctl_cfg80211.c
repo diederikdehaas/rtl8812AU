@@ -6334,90 +6334,109 @@ static void rtw_cfg80211_init_ht_capab(_adapter *padapter, struct ieee80211_sta_
 	
 }
 
-static void rtw_cfg80211_init_vht_capab_ex(_adapter *padapter, struct ieee80211_sta_vht_cap *vht_cap, u8 rf_type)
+static void rtw_cfg80211_init_vht_capab(_adapter *padapter, struct ieee80211_sta_vht_cap *vht_cap, u8 rf_type)
 {
-//todo: Support for other bandwidths
-
-/* NSS = Number of Spatial Streams */
-#define MAX_BIT_RATE_80MHZ_NSS3		1300	/* Mbps */
-#define MAX_BIT_RATE_80MHZ_NSS2		867		/* Mbps */
-#define MAX_BIT_RATE_80MHZ_NSS1		434		/* Mbps */
-
 	struct registry_priv *pregistrypriv = &padapter->registrypriv;
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct vht_priv	*pvhtpriv = &pmlmepriv->vhtpriv;
+	u8 bw, rf_num;
+	u16 HighestRate;
 
+	vht_cap->vht_supported = _TRUE;
 	rtw_vht_use_default_setting(padapter);
-
-	/* RX LDPC */
-	if (TEST_FLAG(pvhtpriv->ldpc_cap, LDPC_VHT_ENABLE_RX))
-		vht_cap->cap |= IEEE80211_VHT_CAP_RXLDPC;
-
-	/* TX STBC */
-	if (TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_TX))
-		vht_cap->cap |= IEEE80211_VHT_CAP_TXSTBC;
-
-	/* RX STBC */
-	if (TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_RX)) {
-		switch (rf_type) {
-		case RF_1T1R:
-			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_1;/*RX STBC One spatial stream*/
-			break;
-		case RF_2T2R:
-		case RF_1T2R:
-			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_2;/*RX STBC Two spatial streams*/
-			break;
-		case RF_3T3R:
-		case RF_3T4R:
-		case RF_4T4R:
-			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_3;/*RX STBC Three spatial streams*/
-			break;
-		default:
-			DBG_871X("[warning] rf_type %d is not expected\n", rf_type);
-			break;
-		}
-	}
-
-	/* switch (rf_type) {
-	case RF_1T1R:
-		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS1;
-		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS1;
-		break;
-	case RF_2T2R:
-	case RF_1T2R:
-		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS2;
-		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS2;
-		break;
-	case RF_3T3R:
-	case RF_3T4R:
-	case RF_4T4R:
-		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS3;
-		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS3;
-		break;
-	default:
-		DBG_871X("[warning] rf_type %d is not expected\n", rf_type);
-		break;
-	} */
-
+	
+	/* Reference: core/rtw_vht.c */
 	/* MCS map */
 	vht_cap->vht_mcs.tx_mcs_map = pvhtpriv->vht_mcs_map[0] | (pvhtpriv->vht_mcs_map[1] << 8);
 	vht_cap->vht_mcs.rx_mcs_map = vht_cap->vht_mcs.tx_mcs_map;
 
-	if (rf_type == RF_1T1R) {
-		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS1;
-		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+	/* B0 B1 Maximum MPDU Length */
+	vht_cap->cap |= IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_11454;
+	
+	/* B2 B3 Supported Channel Width Set */
+	if (hal_chk_bw_cap(padapter, BW_CAP_160M) && REGSTY_IS_BW_5G_SUPPORT(pregistrypriv, CHANNEL_WIDTH_160)) {
+		if (hal_chk_bw_cap(padapter, BW_CAP_80_80M) && REGSTY_IS_BW_5G_SUPPORT(pregistrypriv, CHANNEL_WIDTH_80_80))
+			vht_cap->cap |= IEEE80211_VHT_CAP_SUPP_CHAN_WIDTH_160_80PLUS80MHZ;
+		else
+			vht_cap->cap |= IEEE80211_VHT_CAP_SUPP_CHAN_WIDTH_160MHZ;
+	}
+	
+	// B4 Rx LDPC
+	if(TEST_FLAG(pvhtpriv->ldpc_cap, LDPC_VHT_ENABLE_RX))
+	{
+		vht_cap->cap |= IEEE80211_VHT_CAP_RXLDPC;
 	}
 
-	if (pvhtpriv->sgi_80m)
-		vht_cap->cap |= IEEE80211_VHT_CAP_SHORT_GI_80;
+	// B5 ShortGI for 80MHz
+	vht_cap->cap |= IEEE80211_VHT_CAP_SHORT_GI_80;
 
-	vht_cap->cap |= (pvhtpriv->ampdu_len << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT);
-}
+	// B6 ShortGI for 160MHz
+	// todo
 
-static void rtw_cfg80211_init_vht_capab(_adapter *padapter, struct ieee80211_sta_vht_cap *vht_cap, u8 rf_type)
-{
-	vht_cap->vht_supported = _TRUE;
-	rtw_cfg80211_init_vht_capab_ex(padapter, vht_cap, rf_type);
+	// B7 Tx STBC
+	if(TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_TX))
+	{
+		vht_cap->cap |= IEEE80211_VHT_CAP_TXSTBC;
+	}
+	
+	// B8 B9 B10 Rx STBC
+	if(TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_RX))
+	{
+		rtw_hal_get_hwreg(padapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
+		if ((rf_type == RF_2T2R) || (rf_type == RF_1T2R)) 
+			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_1;
+		else if (rf_type == RF_1T1R) 
+			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_1;
+	}	
+	
+	// B11 SU Beamformer Capable
+	if (TEST_FLAG(pvhtpriv->beamform_cap, BEAMFORMING_VHT_BEAMFORMER_ENABLE)) {		
+		vht_cap->cap |= IEEE80211_VHT_CAP_SU_BEAMFORMER_CAPABLE;
+		// B16 17 18 Number of Sounding Dimensions
+		rtw_hal_get_def_var(padapter, HAL_DEF_BEAMFORMER_CAP, (u8 *)&rf_num);
+		vht_cap->cap |= rf_num << IEEE80211_VHT_CAP_SOUNDING_DIMENSIONS_SHIFT;
+	}
+
+	// B12 SU Beamformee Capable
+	if (TEST_FLAG(pvhtpriv->beamform_cap, BEAMFORMING_VHT_BEAMFORMEE_ENABLE)) {
+		vht_cap->cap |= IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE;
+		// B13 14 15 Compressed Steering Number of Beamformer Antennas Supported
+		rtw_hal_get_def_var(padapter, HAL_DEF_BEAMFORMEE_CAP, (u8 *)&rf_num);
+		vht_cap->cap |= rf_num << IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT;
+	}
+
+	//HW don't support mu bfee/bfer
+	// B19 MU Beamformer Capable
+	// B20 MU Beamformee Capable
+	
+	//TXOP PS disabled or not supported
+	// B21 VHT TXOP PS
+	
+	// B22 +HTC-VHT Capable
+	vht_cap->cap |= IEEE80211_VHT_CAP_HTC_VHT;
+
+	// B23 24 25 Maximum A-MPDU Length Exponent
+	if (pregistrypriv->ampdu_factor != 0xFE)
+	{
+		vht_cap->cap |= pregistrypriv->ampdu_factor << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT;
+	}
+	else
+	{
+		vht_cap->cap |= 7 << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT;
+	}
+	
+	// Link Adaptation not supported
+	// B26 27 VHT Link Adaptation Capable
+
+	/* find the largest bw supported by both registry and hal */
+	bw = hal_largest_bw(padapter, REGSTY_BW_5G(pregistrypriv));
+
+	HighestRate = VHT_MCS_DATA_RATE[bw][pvhtpriv->sgi_80m][((pvhtpriv->vht_highest_rate - MGN_VHT1SS_MCS0)&0x3f)];
+	HighestRate = (HighestRate+1) >> 1;
+	
+	
+	vht_cap->vht_mcs.tx_highest = HighestRate; //indicate we support highest rx rate is 600Mbps.
+	vht_cap->vht_mcs.rx_highest = HighestRate; //indicate we support highest rx rate is 600Mbps.	
 }
 
 void rtw_cfg80211_init_wiphy(_adapter *padapter)
