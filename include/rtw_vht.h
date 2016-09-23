@@ -138,6 +138,7 @@ void	rtw_process_vht_op_mode_notify(_adapter *padapter, u8 *pframe, PVOID sta);
 u32	rtw_restructure_vht_ie(_adapter *padapter, u8 *in_ie, u8 *out_ie, uint in_len, uint *pout_len);
 void	VHTOnAssocRsp(_adapter *padapter);
 u8	rtw_vht_mcsmap_to_nss(u8 *pvht_mcs_map);
+extern const u16 VHT_MCS_DATA_RATE[3][2][30];
 
 #endif	//_RTW_VHT_H_
 
