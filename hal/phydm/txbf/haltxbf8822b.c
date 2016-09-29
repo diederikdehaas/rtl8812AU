@@ -601,7 +601,7 @@ HalTxbf8822B_Enter(
 		ODM_Write2Byte(pDM_Odm, 0x6F4, CSI_Param);
 
 	}
-	
+	
 	/*************MU BFee Entry Init*************/
 	if ((pBeamformingInfo->beamformee_mu_cnt > 0) && (BFeeIdx < BEAMFORMEE_ENTRY_NUM)) {
 		pBeamformeeEntry = &pBeamformingInfo->BeamformeeEntry[BFeeIdx];

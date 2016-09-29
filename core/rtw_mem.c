@@ -74,8 +74,8 @@ static int __init rtw_mem_init(void)
 	pr_info("MAX_RTKM_RECVBUF_SZ: %d\n", MAX_RTKM_RECVBUF_SZ);
 
 #ifdef CONFIG_USE_USB_BUFFER_ALLOC_RX
-	for(i=0; i<NR_RECVBUFF; i++)
-	{
+	for(i=0; i<NR_RECVBUFF; i++)
+	{
 		rtk_buf_mem[i] = usb_buffer_alloc(dev, size, (in_interrupt() ? GFP_ATOMIC : GFP_KERNEL), dma);
 	}
 #endif //CONFIG_USE_USB_BUFFER_ALLOC_RX

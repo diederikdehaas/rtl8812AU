@@ -292,7 +292,7 @@ VOID _InitRDGSetting_8192E(PADAPTER Adapter);
 void _InitID_8192E(IN  PADAPTER Adapter);
 VOID _InitNetworkType_8192E(IN  PADAPTER Adapter);
 VOID _InitWMACSetting_8192E(IN PADAPTER Adapter);
-VOID _InitAdaptiveCtrl_8192E(IN  PADAPTER Adapter);
+VOID _InitAdaptiveCtrl_8192E(IN  PADAPTER Adapter);
 VOID _InitRateFallback_8192E(IN  PADAPTER Adapter);
 VOID _InitEDCA_8192E( IN  PADAPTER Adapter);
 VOID _InitRetryFunction_8192E(	IN  PADAPTER Adapter);
