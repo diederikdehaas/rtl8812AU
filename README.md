@@ -26,18 +26,18 @@ Where '#' denotes that it should be executed as root or with sudo, but don't typ
 To make use of the DKMS feature with this project, do the following:
 ```
 # DRV_NAME=rtl8812AU
-# DRV_VERSION=4.3.14
+# DRV_VERSION=4.3.20
 # mkdir /usr/src/${DRV_NAME}-${DRV_VERSION}
 # git archive driver-${DRV_VERSION} | tar -x -C /usr/src/${DRV_NAME}-${DRV_VERSION}
 # dkms add -m ${DRV_NAME} -v ${DRV_VERSION}
 # dkms build -m ${DRV_NAME} -v ${DRV_VERSION}
 # dkms install -m ${DRV_NAME} -v ${DRV_VERSION}
 ```
-Whereby it is assumed you're in the cloned project directory and the current branch is `driver-4.3.14` (the default). If you want to use another driver version, adjust `DRV_VERSION` accordingly.
+Whereby it is assumed you're in the cloned project directory and the current branch is `driver-4.3.20` (the default). If you want to use another driver version, adjust `DRV_VERSION` accordingly.
 
 If you later on want to remove it again, do the following:
 ```
 # DRV_NAME=rtl8812AU
-# DRV_VERSION=4.3.14
+# DRV_VERSION=4.3.20
 # dkms remove ${DRV_NAME}/${DRV_VERSION} --all
 ```
