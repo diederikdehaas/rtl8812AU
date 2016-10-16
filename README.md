@@ -15,6 +15,21 @@ The driver (versions) are primarily targetted at [Debian](https://www.debian.org
 
 I have currently successfully compiled the driver on Debian kernel 3.2, 3.16, 4.1-4.8 and on Raspbian with kernel 3.18, 4.1 and 4.4.
 
+## Raspberry Pi
+There is a section added for compilation on the Raspberry Pi, but it is not enabled by default.  
+To enable it, make the following change in the `Makefile`:
+```
+CONFIG_PLATFORM_I386_PC = y
+CONFIG_PLATFORM_ARM_RPI = n
+```
+to
+```
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM_RPI = y
+```
+And then it should compile succesfully **on** the Raspberry Pi.  
+Keep in mind that when using dkms on the Raspberry Pi you need to make the above change before running the dkms installation commands.
+
 ## DKMS
 [DKMS](http://linux.dell.com/dkms/) is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated.
 To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
