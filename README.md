@@ -23,7 +23,7 @@ To make use of DKMS, install the `dkms` package, which on Debian (based) systems
 ```
 Where '#' denotes that it should be executed as root or with sudo, but don't type that character.
 
-To make use of the DKMS feature with this project, do the following:
+To make use of the DKMS feature with this project, do the following as root:
 ```
 # DRV_NAME=rtl8812AU
 # DRV_VERSION=4.3.20
@@ -33,11 +33,29 @@ To make use of the DKMS feature with this project, do the following:
 # dkms build -m ${DRV_NAME} -v ${DRV_VERSION}
 # dkms install -m ${DRV_NAME} -v ${DRV_VERSION}
 ```
+and the instructions with `sudo` are:
+
+```
+$ DRV_NAME=rtl8812AU
+$ DRV_VERSION=4.3.20
+$ sudo mkdir /usr/src/${DRV_NAME}-${DRV_VERSION}
+$ git archive driver-${DRV_VERSION} | sudo tar -x -C /usr/src/${DRV_NAME}-${DRV_VERSION}
+$ sudo dkms add -m ${DRV_NAME} -v ${DRV_VERSION}
+$ sudo dkms build -m ${DRV_NAME} -v ${DRV_VERSION}
+$ sudo dkms install -m ${DRV_NAME} -v ${DRV_VERSION}
+```
 Whereby it is assumed you're in the cloned project directory and the current branch is `driver-4.3.20` (the default). If you want to use another driver version, adjust `DRV_VERSION` accordingly.
 
-If you later on want to remove it again, do the following:
+If you later on want to remove it again, do the following as root:
 ```
 # DRV_NAME=rtl8812AU
 # DRV_VERSION=4.3.20
 # dkms remove ${DRV_NAME}/${DRV_VERSION} --all
 ```
+or with `sudo`:
+```
+$ DRV_NAME=rtl8812AU
+$ DRV_VERSION=4.3.20
+$ sudo dkms remove ${DRV_NAME}/${DRV_VERSION} --all
+```
+
