@@ -33,6 +33,10 @@ EXTRA_CFLAGS += -I$(src)/hal/phydm
 
 EXTRA_LDFLAGS += --strip-debug
 
+ifneq ($(KERNELRELEASE),)
+KVER := $(KERNELRELEASE)
+endif
+
 CONFIG_AUTOCFG_CP = n
 
 ########################## WIFI IC ############################
@@ -1642,7 +1646,7 @@ ifneq ($(USER_MODULE_NAME),)
 MODULE_NAME := $(USER_MODULE_NAME)
 endif
 
-ifneq ($(KERNELRELEASE),)
+export CONFIG_RTL8812AU_8821AU = m
 
 rtk_core :=	core/rtw_cmd.o \
 		core/rtw_security.o \
@@ -1695,10 +1699,6 @@ endif
 
 obj-$(CONFIG_RTL8812AU_8821AU) := $(MODULE_NAME).o
 
-else
-
-export CONFIG_RTL8812AU_8821AU = m
-
 all: modules
 
 modules:
@@ -1737,5 +1737,4 @@ clean:
 	rm -fr Module.symvers ; rm -fr Module.markers ; rm -fr modules.order
 	rm -fr *.mod.c *.mod *.o .*.cmd *.ko *~
 	rm -fr .tmp_versions
-endif
 
