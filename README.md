@@ -13,7 +13,7 @@ Currently there are the following branches, named after the initial Realtek driv
 
 The driver (versions) are primarily targetted at [Debian](https://www.debian.org) and [Raspbian](https://www.raspbian.org), but I have no reason to assume it won't work for other distrubutions. If fixes are needed for other distrubution with no negative effect on Debian or Raspbian, I'll gladly incorporate those into my repository.
 
-I have currently successfully compiled the driver on Debian kernel 3.2, 3.16, 4.1-4.8 and on Raspbian with kernel 3.18, 4.1 and 4.4.
+I have currently successfully compiled the driver on Debian kernel 3.2, 3.16, 4.1-4.15 and on Raspbian with kernel 3.18, 4.1 and 4.4.
 
 ## Raspberry Pi
 There is a section added for compilation on the Raspberry Pi, but it is not enabled by default.  
