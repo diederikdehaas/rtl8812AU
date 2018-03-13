@@ -1514,6 +1514,9 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 							EVM += 20;
 							if (EVM > 100)
 								EVM = 100;
+						} else {
+							// it's a made up value, but Realtek apparently assumed 'this would never happen'
+							EVM = 0;
 						}
 					} else {
 						if (i < ODM_RF_PATH_C) {
