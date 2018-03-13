@@ -11247,15 +11247,15 @@ static int rtw_mp_read_reg(struct net_device *dev,
 			sprintf(data, "%04x\n", rtw_read16(padapter, addr));
 			for( i=0 ; i <= strlen(data) ; i++)
 				{
-					  if( i%2==0 )
-					  {
-						   tmp[j]=' ';
-						   j++;
-					  }
-					  if ( data[i] != '\0' )
-					 	 tmp[j] = data[i];
-					 	
-					  	 j++;
+					if( i%2==0 )
+					{
+						tmp[j]=' ';
+						j++;
+					}
+					if ( data[i] != '\0' )
+						 tmp[j] = data[i];
+						
+					 j++;
 				}
 				pch = tmp;		
 				DBG_871X("pch=%s",pch);

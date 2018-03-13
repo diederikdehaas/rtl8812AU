@@ -3971,8 +3971,8 @@ unsigned int rtw_restructure_ht_ie(_adapter *padapter, u8 *in_ie, u8 *out_ie, ui
 		if (stbc_rx_enable)
 			ht_capie.cap_info |= IEEE80211_HT_CAP_RX_STBC_1R;//RX STBC One spatial stream
 
-	                set_mcs_rate_by_mask(ht_capie.supp_mcs_set, MCS_RATE_1R);			
-			break;
+		set_mcs_rate_by_mask(ht_capie.supp_mcs_set, MCS_RATE_1R);			
+		break;
 
 	case RF_2T2R:
 	case RF_1T2R:
