@@ -117,7 +117,7 @@ typedef enum _RF_PATH {
 	RF_PATH_D = 3,
 } RF_PATH, *PRF_PATH;
 
-const char rf_path_char(u8 path);
+char rf_path_char(u8 path);
 
 // Bandwidth Offset
 #define HAL_PRIME_CHNL_OFFSET_DONT_CARE	0

@@ -141,7 +141,7 @@ const char *ch_width_str(u8 bw)
 	return _ch_width_str[bw];
 }
 
-const char rf_path_char(u8 path)
+char rf_path_char(u8 path)
 {
 	if (path >= RF_PATH_MAX)
 		return 'X';
