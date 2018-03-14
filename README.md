@@ -8,11 +8,12 @@ If you find a newer version then I have, I'd appreciate it if you would share it
 Currently there are the following branches, named after the initial Realtek driver version.
 - [version 4.3.8](https://github.com/diederikdehaas/rtl8812AU/tree/driver-4.3.8)
 - [version 4.3.14](https://github.com/diederikdehaas/rtl8812AU/tree/driver-4.3.14)
+- [version 4.3.20](https://github.com/diederikdehaas/rtl8812AU/tree/driver-4.3.20)
 - [version 4.3.22-beta](https://github.com/diederikdehaas/rtl8812AU/tree/driver-4.3.22-beta)
 
 The driver (versions) are primarily targetted at [Debian](https://www.debian.org) and [Raspbian](https://www.raspbian.org), but I have no reason to assume it won't work for other distrubutions. If fixes are needed for other distrubution with no negative effect on Debian or Raspbian, I'll gladly incorporate those into my repository.
 
-I have currently successfully compiled the driver on Debian kernel 3.2, 3.16, 4.1-4.8 and on Raspbian with kernel 3.18, 4.1 and 4.4.
+I have currently successfully compiled the driver on Debian kernel 3.2, 3.16, 4.1-4.15 and on Raspbian with kernel 3.18, 4.1 and 4.4.
 
 ## DKMS
 [DKMS](http://linux.dell.com/dkms/) is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated.
