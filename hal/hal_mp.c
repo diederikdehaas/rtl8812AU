@@ -976,7 +976,7 @@ void mpt_SetRFPath_8812A(PADAPTER pAdapter)
 	}
 
 	switch (ulAntennaRx) {
-		u32 reg0xC50 = 0;
+		u32 reg0xC50;
 	case ANTENNA_A:
 		phy_set_bb_reg(pAdapter, rRxPath_Jaguar, bMaskByte0, 0x11);
 		phy_set_rf_reg(pAdapter, RF_PATH_B, RF_AC_Jaguar, 0xF0000, 0x1); /*/ RF_B_0x0[19:16] = 1, Standby mode*/
