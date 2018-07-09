@@ -129,6 +129,10 @@ void dump_drv_cfg(void *sel)
 	RTW_PRINT_SEL(sel, "CONFIG_RTW_80211R\n");
 #endif
 
+#ifdef CONFIG_RTW_WIFI_HAL
+	RTW_PRINT_SEL(sel, "CONFIG_RTW_WIFI_HAL\n");
+#endif
+
 #ifdef CONFIG_USB_HCI
 #ifdef CONFIG_SUPPORT_USB_INT
 	RTW_PRINT_SEL(sel, "CONFIG_SUPPORT_USB_INT\n");

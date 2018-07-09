@@ -3226,6 +3226,15 @@ netdev_open_normal_process:
 	}
 #endif
 
+#ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS
+	pwrctrlpriv->radio_on_start_time = rtw_get_current_time();
+	pwrctrlpriv->pwr_saving_start_time = rtw_get_current_time();
+	pwrctrlpriv->pwr_saving_time = 0;
+	pwrctrlpriv->on_time = 0;
+	pwrctrlpriv->tx_time = 0;
+	pwrctrlpriv->rx_time = 0;
+#endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
+
 	RTW_INFO("-871x_drv - drv_open, bup=%d\n", padapter->bup);
 
 	return 0;

@@ -463,6 +463,16 @@ struct pwrctrl_priv {
 	u8 blpspg_info_up;
 #endif
 	u8 current_lps_hw_port_id;
+
+#ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS
+	systime radio_on_start_time;
+	systime pwr_saving_start_time;
+	u32 pwr_saving_time;
+	u32 on_time;
+	u32 tx_time;
+	u32 rx_time;
+#endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
+
 };
 
 #define rtw_get_ips_mode_req(pwrctl) \
