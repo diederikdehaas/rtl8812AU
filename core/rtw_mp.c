@@ -539,7 +539,10 @@ static void  PHY_SetRFPathSwitch(PADAPTER padapter , BOOLEAN bMain) {
 #endif
 	} else if (IS_HARDWARE_TYPE_8812(padapter) || IS_HARDWARE_TYPE_8821(padapter)) {
 #if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-		phy_set_rf_path_switch_8812a(padapter, bMain);
+		HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
+		struct PHY_DM_STRUCT	 *dm = &hal_data->odmpriv;
+
+		phy_set_rf_path_switch_8812a(dm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8192E(padapter)) {
 #ifdef CONFIG_RTL8192E

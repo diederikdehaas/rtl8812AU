@@ -40,7 +40,7 @@
 #endif
 
 #if (RTL8822B_SUPPORT == 1 || RTL8197F_SUPPORT == 1)
-	/*#define	CONFIG_ADAPTIVE_SOML*/
+	#define	CONFIG_ADAPTIVE_SOML
 #endif
 
 
@@ -61,7 +61,7 @@
 
 	#ifdef CONFIG_PHYDM_ANTENNA_DIVERSITY
 
-		#if (RTL8723B_SUPPORT == 1) || (RTL8821A_SUPPORT == 1) || (RTL8188F_SUPPORT == 1) || (RTL8821C_SUPPORT == 1)
+		#if (RTL8723B_SUPPORT == 1) || (RTL8821A_SUPPORT == 1) || (RTL8188F_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8723D_SUPPORT == 1)
 			#define	CONFIG_S0S1_SW_ANTENNA_DIVERSITY
 		#endif
 
@@ -72,6 +72,7 @@
 		#if (RTL8822B_SUPPORT == 1)
 			/*#define CONFIG_HL_SMART_ANTENNA_TYPE2*/
 		#endif
+
 	#endif
 #endif
 

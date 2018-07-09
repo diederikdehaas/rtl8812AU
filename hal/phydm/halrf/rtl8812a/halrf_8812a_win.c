@@ -438,6 +438,10 @@ void _iqk_rx_fill_iqc_8812a(
 			odm_set_bb_reg(p_dm, 0xc10, 0x03ff0000, 0);
 			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
 		} else {
+			if (RX_X >= 0x20c)
+				RX_X = 0x20c;
+			else if (RX_X <= 0x1f4)
+				RX_X = 0x1f4;
 			odm_set_bb_reg(p_dm, 0xc10, 0x000003ff, RX_X >> 1);
 			odm_set_bb_reg(p_dm, 0xc10, 0x03ff0000, RX_Y >> 1);
 			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
@@ -453,6 +457,10 @@ void _iqk_rx_fill_iqc_8812a(
 			odm_set_bb_reg(p_dm, 0xe10, 0x03ff0000, 0);
 			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
 		} else {
+			if (RX_X >= 0x20c)
+				RX_X = 0x20c;
+			else if (RX_X <= 0x1f4)
+				RX_X = 0x1f4;
 			odm_set_bb_reg(p_dm, 0xe10, 0x000003ff, RX_X >> 1);
 			odm_set_bb_reg(p_dm, 0xe10, 0x03ff0000, RX_Y >> 1);
 			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x====>fill to IQC\n ", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
@@ -947,7 +955,8 @@ void _iqk_tx_8812a(
 			odm_set_bb_reg(p_dm, 0x978, 0x03FF8000, (TX_IQC[0]) & 0x000007ff);
 			odm_set_bb_reg(p_dm, 0x978, 0x000007FF, (TX_IQC[1]) & 0x000007ff);
 			odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-			if (p_dm->rfe_type == 1)
+			/*pathA RXIQK gain setting*/
+			if ((p_dm->rfe_type == 1) && (p_dm->ext_pa_5g))
 				odm_write_4byte(p_dm, 0xc8c, 0x28161500);
 			else
 				odm_write_4byte(p_dm, 0xc8c, 0x28160cc0);
@@ -962,7 +971,8 @@ void _iqk_tx_8812a(
 			odm_set_bb_reg(p_dm, 0x978, 0x03FF8000, (TX_IQC[2]) & 0x000007ff);
 			odm_set_bb_reg(p_dm, 0x978, 0x000007FF, (TX_IQC[3]) & 0x000007ff);
 			odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-			if (p_dm->rfe_type == 1)
+			/*pathB RXIQK gain setting*/
+			if ((p_dm->rfe_type == 1) && (p_dm->ext_pa_5g))
 				odm_write_4byte(p_dm, 0xe8c, 0x28161500);
 			else
 				odm_write_4byte(p_dm, 0xe8c, 0x28160ca0);
@@ -1342,6 +1352,10 @@ _phy_iq_calibrate_by_fw_8812a(
 
 	odm_fill_h2c_cmd(p_dm, ODM_H2C_IQ_CALIBRATION, 3, iqk_cmd);
 }
+
+/*IQK version:0x2*/
+/*1. add RX IQK boundary*/
+/*2. fine tune RXIQK loop gain*/
 
 void
 phy_iq_calibrate_8812a(

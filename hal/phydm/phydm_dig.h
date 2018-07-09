@@ -39,7 +39,7 @@
 #define		DIG_MAX_OF_MIN_BALANCE_MODE		0x2a
 
 #define		DIG_MAX_PERFORMANCE_MODE		0x5a
-#define		DIG_MAX_OF_MIN_PERFORMANCE_MODE		0x2a	/*from 3E -> 2A, refine by YuChen 2017/04/18*/
+#define		DIG_MAX_OF_MIN_PERFORMANCE_MODE		0x40	/*from 3E -> 2A, refine by YuChen 2017/04/18*/
 
 #define		DIG_MIN_PERFORMANCE			0x20
 
@@ -109,6 +109,7 @@ struct phydm_dig_struct {
 	u8		pause_dig_value[PHYDM_PAUSE_MAX_NUM];
 	enum dig_goupcheck_level		dig_go_up_check_level;
 	u8		aaa_default;
+	u8		a0a_default;
 	u16		fa_th[3];
 #if (RTL8822B_SUPPORT == 1 || RTL8197F_SUPPORT == 1 || RTL8821C_SUPPORT == 1)
 	u8		rf_gain_idx;
@@ -146,6 +147,7 @@ struct phydm_fa_struct {
 	u32		cnt_ofdm_fail_pre;	/* For RTL8881A */
 	u32		cnt_cck_fail;
 	u32		cnt_all;
+	u32		cnt_all_accumulated;  /*accumulate cnt_all*/
 	u32		cnt_all_pre;
 	u32		cnt_fast_fsync;
 	u32		cnt_sb_search_fail;

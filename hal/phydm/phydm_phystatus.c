@@ -91,96 +91,161 @@ phydm_reset_phystatus_statistic(
 
 void
 phydm_avg_phystatus_index(
-	struct PHY_DM_STRUCT			*p_dm,
+	void *dm_void,
 	struct phydm_phyinfo_struct		*p_phy_info,
 	struct phydm_perpkt_info_struct			*p_pktinfo
 )
 {
-	u8	rate_ss = phydm_rate_to_num_ss(p_dm, p_pktinfo->data_rate);
-	struct phydm_phystatus_statistic		*p_dbg_statistic = &(p_dm->phy_dbg_info.phystatus_statistic_info);
+	struct PHY_DM_STRUCT *dm = (struct PHY_DM_STRUCT *)dm_void;
+	struct _odm_phy_dbg_info_ *dbg_i = &dm->phy_dbg_info;
+	struct phydm_phystatus_statistic *dbg_s = &dbg_i->phystatus_statistic_info;
+	u8 rssi[PHYSTS_PATH_NUM] = {0};
+	u8 evm[PHYSTS_PATH_NUM] = {0};
+	s8 snr[PHYSTS_PATH_NUM] = {0};
+	u32 size = PHYSTS_PATH_NUM; /*size of path=4*/
+	u16 size_th = PHY_HIST_SIZE - 1; /*size of threshold*/
+	u16 val = 0, intvl = 0;
+	u8 i = 0;
+
+	odm_move_memory(dm, rssi, p_phy_info->rx_mimo_signal_strength, size);
+	odm_move_memory(dm, evm, p_phy_info->rx_mimo_evm_dbm, size);
+	odm_move_memory(dm, snr, p_phy_info->rx_snr, size);
 
 	if (p_pktinfo->data_rate <= ODM_RATE11M) {
-
 		/*RSSI*/
-		p_dbg_statistic->rssi_cck_sum += p_phy_info->rx_mimo_signal_strength[0];
-		p_dbg_statistic->rssi_cck_cnt++;
+		dbg_s->rssi_cck_sum += rssi[0];
+		dbg_s->rssi_cck_cnt++;
+		return;
 	} else if (p_pktinfo->data_rate <= ODM_RATE54M) {
-
 		/*evm*/
-		p_dbg_statistic->evm_ofdm_sum += p_phy_info->rx_mimo_evm_dbm[0];
+		dbg_s->evm_ofdm_sum += evm[0];
 
 		/*SNR*/
-		p_dbg_statistic->snr_ofdm_sum += p_phy_info->rx_snr[0];
+		dbg_s->snr_ofdm_sum += snr[0];
 
 		/*RSSI*/
-		p_dbg_statistic->rssi_ofdm_sum += p_phy_info->rx_mimo_signal_strength[0];
-		p_dbg_statistic->rssi_ofdm_cnt++;
-	} else if (rate_ss == 1) {
+		dbg_s->rssi_ofdm_sum += rssi[0];
+		dbg_s->rssi_ofdm_cnt++;
 
+		val = (u16)evm[0];
+		intvl = phydm_find_intrvl(dm, val, dbg_i->evm_hist_th, size_th);
+		dbg_s->evm_ofdm_hist[intvl]++;
+
+		val = (u16)snr[0];
+		intvl = phydm_find_intrvl(dm, val, dbg_i->snr_hist_th, size_th);
+		dbg_s->snr_ofdm_hist[intvl]++;
+
+	} else if (p_pktinfo->rate_ss == 1) {
+/*===[1-SS]===================================================================*/
 		/*evm*/
-		p_dbg_statistic->evm_1ss_sum += p_phy_info->rx_mimo_evm_dbm[0];
+		dbg_s->evm_1ss_sum += evm[0];
 
 		/*SNR*/
-		p_dbg_statistic->snr_1ss_sum += p_phy_info->rx_snr[0];
+		dbg_s->snr_1ss_sum += snr[0];
 
-		p_dbg_statistic->rssi_1ss_sum += p_phy_info->rx_mimo_signal_strength[0];
-		p_dbg_statistic->rssi_1ss_cnt++;
-	} else if (rate_ss == 2) {
+		/*RSSI*/
+		dbg_s->rssi_1ss_sum += rssi[0];
+
+		/*EVM Histogram*/
+		val = (u16)evm[0];
+		intvl = phydm_find_intrvl(dm, val, dbg_i->evm_hist_th, size_th);
+		dbg_s->evm_1ss_hist[intvl]++;
+
+		/*SNR Histogram*/
+		val = (u16)snr[0];
+		intvl = phydm_find_intrvl(dm, val, dbg_i->snr_hist_th, size_th);
+		dbg_s->snr_1ss_hist[intvl]++;
+
+		dbg_s->rssi_1ss_cnt++;
+	} else if (p_pktinfo->rate_ss == 2) {
+/*===[2-SS]===================================================================*/
 		#if (defined(PHYDM_COMPILE_ABOVE_2SS))
-		/*evm*/
-		p_dbg_statistic->evm_2ss_sum[0] += p_phy_info->rx_mimo_evm_dbm[0];
-		p_dbg_statistic->evm_2ss_sum[1] += p_phy_info->rx_mimo_evm_dbm[1];
+		for (i = 0; i < p_pktinfo->rate_ss; i++) {
+			/*evm*/
+			dbg_s->evm_2ss_sum[i] += evm[i];
+			/*SNR*/
+			dbg_s->snr_2ss_sum[i] += snr[i];
+			/*RSSI*/
+			dbg_s->rssi_2ss_sum[i] += rssi[i];
+			/*EVM Histogram*/
+			val = (u16)evm[i];
+			intvl = phydm_find_intrvl(dm, val, dbg_i->evm_hist_th,
+						  size_th);
+			dbg_s->evm_2ss_hist[i][intvl]++;
 
-		/*SNR*/
-		p_dbg_statistic->snr_2ss_sum[0] += p_phy_info->rx_snr[0];
-		p_dbg_statistic->snr_2ss_sum[1] += p_phy_info->rx_snr[1];
-
-		/*RSSI*/
-		p_dbg_statistic->rssi_2ss_sum[0] += p_phy_info->rx_mimo_signal_strength[0];
-		p_dbg_statistic->rssi_2ss_sum[1] += p_phy_info->rx_mimo_signal_strength[1];
-		p_dbg_statistic->rssi_2ss_cnt++;
+			/*SNR Histogram*/
+			val = (u16)snr[i];
+			intvl = phydm_find_intrvl(dm, val, dbg_i->snr_hist_th,
+						  size_th);
+			dbg_s->snr_2ss_hist[i][intvl]++;
+		}
+		dbg_s->rssi_2ss_cnt++;
 		#endif
-	} else if (rate_ss == 3) {
+	} else if (p_pktinfo->rate_ss == 3) {
+/*===[3-SS]===================================================================*/
 		#if (defined(PHYDM_COMPILE_ABOVE_3SS))
-		/*evm*/
-		p_dbg_statistic->evm_3ss_sum[0] += p_phy_info->rx_mimo_evm_dbm[0];
-		p_dbg_statistic->evm_3ss_sum[1] += p_phy_info->rx_mimo_evm_dbm[1];
-		p_dbg_statistic->evm_3ss_sum[2] += p_phy_info->rx_mimo_evm_dbm[2];
+		for (i = 0; i < p_pktinfo->rate_ss; i++) {
+			/*evm*/
+			dbg_s->evm_3ss_sum[i] += evm[i];
+			/*SNR*/
+			dbg_s->snr_3ss_sum[i] += snr[i];
+			/*RSSI*/
+			dbg_s->rssi_3ss_sum[i] += rssi[i];
+			/*EVM Histogram*/
+			val = (u16)evm[i];
+			intvl = phydm_find_intrvl(dm, val, dbg_i->evm_hist_th,
+						  size_th);
+			dbg_s->evm_3ss_hist[i][intvl]++;
 
-		/*SNR*/
-		p_dbg_statistic->snr_3ss_sum[0] += p_phy_info->rx_snr[0];
-		p_dbg_statistic->snr_3ss_sum[1] += p_phy_info->rx_snr[1];
-		p_dbg_statistic->snr_3ss_sum[2] += p_phy_info->rx_snr[2];
-
-		/*RSSI*/
-		p_dbg_statistic->rssi_3ss_sum[0] += p_phy_info->rx_mimo_signal_strength[0];
-		p_dbg_statistic->rssi_3ss_sum[1] += p_phy_info->rx_mimo_signal_strength[1];
-		p_dbg_statistic->rssi_3ss_sum[2] += p_phy_info->rx_mimo_signal_strength[2];
-		p_dbg_statistic->rssi_3ss_cnt++;
+			/*SNR Histogram*/
+			val = (u16)snr[i];
+			intvl = phydm_find_intrvl(dm, val, dbg_i->snr_hist_th,
+						  size_th);
+			dbg_s->snr_3ss_hist[i][intvl]++;
+		}
+		dbg_s->rssi_3ss_cnt++;
 		#endif
-	} else if (rate_ss == 4) {
+	} else if (p_pktinfo->rate_ss == 4) {
+/*===[4-SS]===================================================================*/
 		#if (defined(PHYDM_COMPILE_ABOVE_4SS))
-		/*evm*/
-		p_dbg_statistic->evm_4ss_sum[0] += p_phy_info->rx_mimo_evm_dbm[0];
-		p_dbg_statistic->evm_4ss_sum[1] += p_phy_info->rx_mimo_evm_dbm[1];
-		p_dbg_statistic->evm_4ss_sum[2] += p_phy_info->rx_mimo_evm_dbm[2];
-		p_dbg_statistic->evm_4ss_sum[3] += p_phy_info->rx_mimo_evm_dbm[3];
+		for (i = 0; i < p_pktinfo->rate_ss; i++) {
+			/*evm*/
+			dbg_s->evm_4ss_sum[i] += evm[i];
+			/*SNR*/
+			dbg_s->snr_4ss_sum[i] += snr[i];
+			/*RSSI*/
+			dbg_s->rssi_4ss_sum[i] += rssi[i];
+			/*EVM Histogram*/
+			val = (u16)evm[i];
+			intvl = phydm_find_intrvl(dm, val, dbg_i->evm_hist_th,
+						  size_th);
+			dbg_s->evm_4ss_hist[i][intvl]++;
 
-		/*SNR*/
-		p_dbg_statistic->snr_4ss_sum[0] += p_phy_info->rx_snr[0];
-		p_dbg_statistic->snr_4ss_sum[1] += p_phy_info->rx_snr[1];
-		p_dbg_statistic->snr_4ss_sum[2] += p_phy_info->rx_snr[2];
-		p_dbg_statistic->snr_4ss_sum[3] += p_phy_info->rx_snr[3];
-
-		/*RSSI*/
-		p_dbg_statistic->rssi_4ss_sum[0] += p_phy_info->rx_mimo_signal_strength[0];
-		p_dbg_statistic->rssi_4ss_sum[1] += p_phy_info->rx_mimo_signal_strength[1];
-		p_dbg_statistic->rssi_4ss_sum[2] += p_phy_info->rx_mimo_signal_strength[2];
-		p_dbg_statistic->rssi_4ss_sum[3] += p_phy_info->rx_mimo_signal_strength[3];
-		p_dbg_statistic->rssi_4ss_cnt++;
+			/*SNR Histogram*/
+			val = (u16)snr[i];
+			intvl = phydm_find_intrvl(dm, val, dbg_i->snr_hist_th,
+						  size_th);
+			dbg_s->snr_4ss_hist[i][intvl]++;
+		}
+		dbg_s->rssi_4ss_cnt++;
 		#endif
 	}
 }
+
+void phydm_avg_phystatus_init(void *dm_void)
+{
+	struct PHY_DM_STRUCT *dm = (struct PHY_DM_STRUCT *)dm_void;
+	struct _odm_phy_dbg_info_ *dbg_i = &dm->phy_dbg_info;
+	u16 snr_hist_th[PHY_HIST_SIZE - 1] = {5, 8, 11, 14, 17, 20, 23, 26,
+					      29, 32, 35};
+	u16 evm_hist_th[PHY_HIST_SIZE - 1] = {5, 8, 11, 14, 17, 20, 23, 26,
+					      29, 32, 35};
+	u32 size = (PHY_HIST_SIZE - 1) * 2;
+
+	odm_move_memory(dm, dbg_i->snr_hist_th, snr_hist_th, size);
+	odm_move_memory(dm, dbg_i->evm_hist_th, evm_hist_th, size);
+}
+
 
 u8 phydm_get_signal_quality(
 	struct phydm_phyinfo_struct *p_phy_info,
@@ -773,6 +838,7 @@ phydm_rx_phy_status92c_series_parsing(
 
 	is_cck_rate = (p_pktinfo->data_rate <= ODM_RATE11M) ? true : false;
 	p_dm->rate_ss = phydm_rate_to_num_ss(p_dm, p_pktinfo->data_rate);
+	p_pktinfo->rate_ss = p_dm->rate_ss;
 
 	if (p_pktinfo->is_to_self)
 		p_dm->curr_station_id = p_pktinfo->station_id;
@@ -1094,6 +1160,7 @@ phydm_rx_phy_status_jaguar_series_parsing(
 
 	is_cck_rate = (p_pktinfo->data_rate <= ODM_RATE11M) ? true : false;
 	p_dm->rate_ss = phydm_rate_to_num_ss(p_dm, p_pktinfo->data_rate);
+	p_pktinfo->rate_ss = p_dm->rate_ss;
 
 	if (p_pktinfo->is_to_self)
 		p_dm->curr_station_id = p_pktinfo->station_id;
@@ -2492,6 +2559,7 @@ phydm_rx_phy_status_new_type(
 	/* Memory reset */
 	phydm_reset_phy_info(p_dm, p_phy_info);
 	p_dm->rate_ss = phydm_rate_to_num_ss(p_dm, p_pktinfo->data_rate);
+	p_pktinfo->rate_ss = p_dm->rate_ss;
 
 	/* Phy status parsing */
 	switch (phy_status_type) {
@@ -2563,8 +2631,9 @@ phydm_rx_phy_status_init(
 	void			*p_dm_void
 )
 {
-#ifdef PHYDM_PHYSTAUS_SMP_MODE
 	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
+#ifdef PHYDM_PHYSTAUS_SMP_MODE
+
 	struct pkt_process_info			*p_pkt_process = &(p_dm->pkt_proc_struct);
 
 	if (p_dm->support_ic_type == ODM_RTL8822B) {
@@ -2578,4 +2647,5 @@ phydm_rx_phy_status_init(
 		odm_set_bb_reg(p_dm, 0x9e4, 0xfc00, 0x0); /*Update Sampling time*/
 	}
 #endif
+	phydm_avg_phystatus_init(p_dm);
 }

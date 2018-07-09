@@ -87,7 +87,7 @@ halrf_rf_lna_setting_8812a(
 
 
 void phy_set_rf_path_switch_8812a(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+#if ((DM_ODM_SUPPORT_TYPE & ODM_AP) || (DM_ODM_SUPPORT_TYPE == ODM_CE))
 	struct PHY_DM_STRUCT		*p_dm,
 #else
 	struct _ADAPTER	*p_adapter,

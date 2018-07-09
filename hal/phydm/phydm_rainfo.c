@@ -19,6 +19,32 @@
 #include "mp_precomp.h"
 #include "phydm_precomp.h"
 
+u8 phydm_rate_type_2_num_ss(void *dm_void, enum PDM_RATE_TYPE type)
+{
+	u8 num_ss = 1;
+
+	switch (type) {
+	case PDM_CCK:
+	case PDM_OFDM:
+	case PDM_1SS:
+		num_ss = 1;
+		break;
+	case PDM_2SS:
+		num_ss = 2;
+		break;
+	case PDM_3SS:
+		num_ss = 3;
+		break;
+	case PDM_4SS:
+		num_ss = 4;
+		break;
+	default:
+		break;
+	}
+
+	return num_ss;
+}
+
 void
 phydm_h2C_debug(
 	void		*p_dm_void,
@@ -890,17 +916,17 @@ phydm_get_bb_mod_ra_mask(
 	if (wireless_mode != WIRELESS_CCK) {
 
 		if (rssi_lv == 0)
-			ra_mask_bitmap &=  0xffffffff;
+			ra_mask_bitmap &=  0xffffffffffffffff;
 		else if (rssi_lv == 1)
-			ra_mask_bitmap &=  0xfffffff0;
+			ra_mask_bitmap &=  0xfffffffffffffff0;
 		else if (rssi_lv == 2)
-			ra_mask_bitmap &=  0xffffefe0;
+			ra_mask_bitmap &=  0xffffffffffffefe0;
 		else if (rssi_lv == 3)
-			ra_mask_bitmap &=  0xffffcfc0;
+			ra_mask_bitmap &=  0xffffffffffffcfc0;
 		else if (rssi_lv == 4)
-			ra_mask_bitmap &=  0xffff8f80;
+			ra_mask_bitmap &=  0xffffffffffff8f80;
 		else if (rssi_lv >= 5)
-			ra_mask_bitmap &=  0xffff0f00;
+			ra_mask_bitmap &=  0xffffffffffff0f00;
 
 	}
 	PHYDM_DBG(p_dm, DBG_RA, ("Mod by RSSI=0x%llx\n", ra_mask_bitmap));
@@ -1098,7 +1124,7 @@ phydm_ra_registed(
 
 	#if (RTL8188E_SUPPORT == 1) && (RATE_ADAPTIVE_SUPPORT == 1)
 	if (p_dm->support_ic_type == ODM_RTL8188E)
-		phydm_get_rate_id_88e(p_dm, macid);
+		p_ra->rate_id = phydm_get_rate_id_88e(p_dm, macid);
 	else
 	#endif
 	{

@@ -296,8 +296,6 @@ struct odm_rf_calibration_structure {
 	/*Add by Yuchen for Kfree Phydm*/
 	u8			reg_rf_kfree_enable;	/*for registry*/
 	u8			rf_kfree_enable;		/*for efuse enable check*/
-
-	HALMAC_PWR_TRACKING_OPTION	HALMAC_PWR_TRACKING_INFO;
 };
 
 

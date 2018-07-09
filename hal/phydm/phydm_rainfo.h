@@ -214,6 +214,8 @@ struct _rate_adaptive_table_ {
 	void (*record_ra_info)(void *p_dm_void, u8 macid, struct cmn_sta_info *p_sta, u64 ra_mask);
 };
 
+u8 phydm_rate_type_2_num_ss(void *dm_void, enum PDM_RATE_TYPE type);
+
 void
 phydm_h2C_debug(
 	void		*p_dm_void,

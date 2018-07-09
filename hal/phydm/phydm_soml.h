@@ -49,12 +49,10 @@ struct adaptive_soml {
 	u32			pre_num_ht_bytes[HT_RATE_IDX];
 	u32			num_ht_bytes_on[HT_RATE_IDX];
 	u32			num_ht_bytes_off[HT_RATE_IDX];
-	#if	ODM_IC_11AC_SERIES_SUPPORT
 	u32			num_vht_bytes[VHT_RATE_IDX];
 	u32			pre_num_vht_bytes[VHT_RATE_IDX];
 	u32			num_vht_bytes_on[VHT_RATE_IDX];
 	u32			num_vht_bytes_off[VHT_RATE_IDX];
-	#endif
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 #if USE_WORKITEM
@@ -62,13 +60,7 @@ struct adaptive_soml {
 #endif
 #endif
 	struct timer_list		phydm_adaptive_soml_timer;
-
 };
-
-void
-phydm_dynamicsoftmletting(
-	struct PHY_DM_STRUCT		*p_dm
-);
 
 void
 phydm_soml_on_off(
@@ -85,6 +77,17 @@ phydm_adaptive_soml_callback(
 void
 phydm_adaptive_soml_workitem_callback(
 	void		*p_context
+);
+
+#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
+void
+phydm_adaptive_soml_callback(
+	void		*dm_void
+);
+
+void
+phydm_adaptive_soml_workitem_callback(
+	void		*context
 );
 
 #else
@@ -123,6 +126,19 @@ phydm_adaptive_soml_reset(
 );
 
 #endif
+#ifdef NEVER
+void
+phydm_dynamicsoftmletting(
+	struct PHY_DM_STRUCT		*p_dm
+);
+#endif
+
+void
+phydm_soml_bytes_acq(
+	void		*dm_void,
+	u8		rate_id,
+	u32		length
+);
 
 void
 phydm_adaptive_soml_timers(
@@ -138,6 +154,25 @@ phydm_adaptive_soml_init(
 void
 phydm_adaptive_soml(
 	void		*p_dm_void
+);
+
+void
+phydm_enable_adaptive_soml(
+	void		*dm_void
+);
+
+void
+phydm_stop_adaptive_soml(
+	void		*dm_void
+);
+
+void
+phydm_adaptive_soml_para_set(
+	void		*dm_void,
+	u8		train_num,
+	u8		intvl,
+	u8		period,
+	u8		delay_time
 );
 
 void

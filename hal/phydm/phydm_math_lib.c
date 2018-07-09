@@ -76,6 +76,27 @@ odm_sign_conversion(
 	return value;
 }
 
+/*threshold must form low to high*/
+u16 phydm_find_intrvl(void *dm_void, u16 val, u16 *threshold, u16 th_len)
+{
+	struct PHY_DM_STRUCT *dm = (struct PHY_DM_STRUCT *)dm_void;
+	u16 i = 0;
+	u16 ret_val = 0;
+	u16 max_th = threshold[th_len - 1];
+
+	for (i = 0; i < th_len; i++) {
+		if (val < threshold[i]) {
+			ret_val = i;
+			break;
+		} else if (val >= max_th) {
+			ret_val = th_len;
+			break;
+		}
+	}
+
+	return ret_val;
+}
+
 void
 phydm_seq_sorting(
 	void	*p_dm_void,

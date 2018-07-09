@@ -76,6 +76,15 @@
 	#define RX_SMOOTH_FACTOR	20
 #endif
 
+enum PDM_RATE_TYPE {
+	PDM_1SS			= 1,	/*VHT/HT 1SS*/
+	PDM_2SS			= 2,	/*VHT/HT 2SS*/
+	PDM_3SS			= 3,	/*VHT/HT 3SS*/
+	PDM_4SS			= 4,	/*VHT/HT 4SS*/
+	PDM_CCK			= 11,	/*B*/
+	PDM_OFDM		= 12	/*G*/
+};
+
 /* -----MGN rate--------------------------------- */
 
 enum ODM_MGN_RATE {

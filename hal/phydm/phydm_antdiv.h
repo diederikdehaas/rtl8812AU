@@ -131,6 +131,12 @@
 /*Hong Lin Smart antenna*/
 #define HL_SMTANT_2WIRE_DATA_LEN 24
 
+#if (RTL8723D_SUPPORT == 1)
+	#ifndef CONFIG_ANTENNA_DIVERSITY_PERIOD
+		#define CONFIG_ANTENNA_DIVERSITY_PERIOD 1
+	#endif
+#endif
+
 /* 1 ============================================================
  * 1  structure
  * 1 ============================================================ */

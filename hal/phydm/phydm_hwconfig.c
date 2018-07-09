@@ -348,12 +348,10 @@ odm_config_rf_with_tx_pwr_track_header_file(
 /* JJ ADD 20161014 */
 #if RTL8710B_SUPPORT
 	if (p_dm->support_ic_type == ODM_RTL8710B) {
-		if (p_dm->support_interface == ODM_ITRF_PCIE)
-			READ_AND_CONFIG_MP(8710b, _txpowertrack_pcie);
-		else if (p_dm->support_interface == ODM_ITRF_USB)
-			READ_AND_CONFIG_MP(8710b, _txpowertrack_usb);
-		else if (p_dm->support_interface == ODM_ITRF_SDIO)
-			READ_AND_CONFIG_MP(8710b, _txpowertrack_sdio);
+		if (p_dm->package_type == 1)
+			READ_AND_CONFIG_MP(8710b, _txpowertrack_qfn48m_smic);
+		else if (p_dm->package_type == 5)
+			READ_AND_CONFIG_MP(8710b, _txpowertrack_qfn48m_umc);
 
 		READ_AND_CONFIG_MP(8710b, _txxtaltrack);
 	}

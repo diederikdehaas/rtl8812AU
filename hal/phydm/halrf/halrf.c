@@ -1006,6 +1006,20 @@ halrf_cmn_info_set(
 		case HALRF_CMNINFO_RATE_INDEX:
 			p_rf->p_rate_index = (u32)value;
 			break;
+#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
+		case	HALRF_CMNINFO_MP_PSD_POINT:
+			p_rf->halrf_psd_data.point = (u32)value;
+			break;
+		case	HALRF_CMNINFO_MP_PSD_START_POINT:
+			p_rf->halrf_psd_data.start_point = (u32)value;
+			break;
+		case	HALRF_CMNINFO_MP_PSD_STOP_POINT:
+			p_rf->halrf_psd_data.stop_point = (u32)value;
+			break;
+		case	HALRF_CMNINFO_MP_PSD_AVERAGE:
+			p_rf->halrf_psd_data.average = (u32)value;
+			break;
+#endif
 		default:
 			/* do nothing */
 			break;

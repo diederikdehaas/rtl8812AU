@@ -106,7 +106,7 @@ enum bb_path {
 	BB_PATH_ACD = (BB_PATH_A | BB_PATH_C | BB_PATH_D),
 	BB_PATH_BCD = (BB_PATH_B | BB_PATH_C | BB_PATH_D),
 
-	BB_PATH_ABCD = (BB_PATH_A | BB_PATH_B | BB_PATH_D | BB_PATH_D),
+	BB_PATH_ABCD = (BB_PATH_A | BB_PATH_B | BB_PATH_C | BB_PATH_D),
 };
 
 enum rf_path {
@@ -155,6 +155,7 @@ struct rssi_info {
 	u16		cck_sum_power;
 	u8		is_send_rssi;
 	u8		valid_bit;
+	s16		rssi_acc;	/*accumulate RSSI for per packet MA sum*/
 };
 
 struct ra_sta_info {
@@ -178,6 +179,12 @@ struct ra_sta_info {
 	u64	ramask;
 };
 
+struct dtp_info {
+	u8	dyn_tx_power;	/*Dynamic Tx power offset*/
+	u8	sta_tx_high_power_lvl;
+	u8	sta_last_dtp_lvl;
+};
+
 struct cmn_sta_info {
 	u16	dm_ctrl;
 	enum channel_width	bw_mode;	/*max bandwidth*/
@@ -196,6 +203,9 @@ struct cmn_sta_info {
 	struct bf_cmn_info	bf_info;
 #endif
 	u8	sm_ps:2;
+	struct dtp_info dtp_stat;	/*Dynamic Tx power offset*/
+	u8		pw2cca_over_TH_cnt;
+	u8		total_pw2cca_cnt;
 };
 
 struct phydm_phyinfo_struct {
@@ -219,12 +229,16 @@ struct phydm_phyinfo_struct {
 	u8		channel;						/* channel number---*/
 	u8		is_mu_packet:1;				/* is MU packet or not---boolean*/
 	u8		is_beamformed:1;				/* BF packet---boolean*/
+	u8		cnt_pw2cca;
+	u8		cnt_cca2agc_rdy;
 /*ODM_PHY_STATUS_NEW_TYPE_SUPPORT*/
 };
 
 struct phydm_perpkt_info_struct {
 	u8		data_rate;
 	u8		station_id;
+	u8		is_cck_rate: 1;
+	u8		rate_ss:3;			/*spatial stream of data rate*/
 	u8		is_packet_match_bssid:1;	/*boolean*/
 	u8		is_packet_to_self:1;		/*boolean*/
 	u8		is_packet_beacon:1;		/*boolean*/

@@ -20,6 +20,7 @@
 #include "mp_precomp.h"
 #include "phydm_precomp.h"
 
+#ifdef NEVER
 void
 phydm_dynamicsoftmletting(
 	struct PHY_DM_STRUCT		*p_dm
@@ -54,6 +55,7 @@ phydm_dynamicsoftmletting(
 #endif
 
 }
+#endif
 
 #ifdef CONFIG_ADAPTIVE_SOML
 void
@@ -126,6 +128,37 @@ phydm_adaptive_soml_workitem_callback(
 #endif
 }
 
+#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
+void
+phydm_adaptive_soml_callback(
+	void	*dm_void
+)
+{
+	struct PHY_DM_STRUCT	*dm = (struct PHY_DM_STRUCT *)dm_void;
+	void	*padapter = dm->adapter;
+
+	if (*dm->p_is_net_closed)
+		return;
+	if (dm->support_interface == ODM_ITRF_PCIE) {
+		phydm_adsl(dm);
+	} else {
+		/* Can't do I/O in timer callback*/
+		rtw_run_in_thread_cmd(padapter, phydm_adaptive_soml_workitem_callback, padapter);
+	}
+}
+
+void
+phydm_adaptive_soml_workitem_callback(
+	void	*context
+)
+{
+	void *adapter = (void *)context;
+	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(((PADAPTER)adapter));
+	struct PHY_DM_STRUCT		*dm = &hal_data->odmpriv;
+
+	/*dbg_print("phydm_adaptive_soml-phydm_adaptive_soml_workitem_callback\n");*/
+	phydm_adsl(dm);
+}
 #else
 
 void
@@ -202,32 +235,34 @@ phydm_soml_statistics(
 	u8	i;
 	u32	num_bytes_diff;
 
-	if (p_dm->support_ic_type == ODM_RTL8197F) {
-		if (on_off_state == SOML_ON) {
-			for (i = 0; i < HT_RATE_IDX; i++) {
-				num_bytes_diff = p_dm_soml_table->num_ht_bytes[i] - p_dm_soml_table->pre_num_ht_bytes[i];
-				p_dm_soml_table->num_ht_bytes_on[i] += num_bytes_diff;
-				p_dm_soml_table->pre_num_ht_bytes[i] = p_dm_soml_table->num_ht_bytes[i];
-			}
-		} else if (on_off_state == SOML_OFF) {
-			for (i = 0; i < HT_RATE_IDX; i++) {
-				num_bytes_diff = p_dm_soml_table->num_ht_bytes[i] - p_dm_soml_table->pre_num_ht_bytes[i];
-				p_dm_soml_table->num_ht_bytes_off[i] += num_bytes_diff;
-				p_dm_soml_table->pre_num_ht_bytes[i] = p_dm_soml_table->num_ht_bytes[i];
+	if (on_off_state == SOML_ON) {
+		if (*p_dm->p_channel <= 14) {
+			for (i = ODM_RATEMCS0; i <= ODM_RATEMCS15; i++) {
+				num_bytes_diff = p_dm_soml_table->num_ht_bytes[i - ODM_RATEMCS0] - p_dm_soml_table->pre_num_ht_bytes[i - ODM_RATEMCS0];
+				p_dm_soml_table->num_ht_bytes_on[i - ODM_RATEMCS0] += num_bytes_diff;
+				p_dm_soml_table->pre_num_ht_bytes[i - ODM_RATEMCS0] = p_dm_soml_table->num_ht_bytes[i - ODM_RATEMCS0];
 			}
 		}
-	} else if (p_dm->support_ic_type == ODM_RTL8822B) {
-		if (on_off_state == SOML_ON) {
-			for (i = 0; i < VHT_RATE_IDX; i++) {
-				num_bytes_diff = p_dm_soml_table->num_vht_bytes[i] - p_dm_soml_table->pre_num_vht_bytes[i];
-				p_dm_soml_table->num_vht_bytes_on[i] += num_bytes_diff;
-				p_dm_soml_table->pre_num_vht_bytes[i] = p_dm_soml_table->num_vht_bytes[i];
+		if (p_dm->support_ic_type == ODM_RTL8822B) {
+			for (i = ODM_RATEVHTSS1MCS0; i <= ODM_RATEVHTSS2MCS9; i++) {
+				num_bytes_diff = p_dm_soml_table->num_vht_bytes[i - ODM_RATEVHTSS1MCS0] - p_dm_soml_table->pre_num_vht_bytes[i - ODM_RATEVHTSS1MCS0];
+				p_dm_soml_table->num_vht_bytes_on[i - ODM_RATEVHTSS1MCS0] += num_bytes_diff;
+				p_dm_soml_table->pre_num_vht_bytes[i - ODM_RATEVHTSS1MCS0] = p_dm_soml_table->num_vht_bytes[i - ODM_RATEVHTSS1MCS0];
 			}
-		} else if (on_off_state == SOML_OFF) {
-			for (i = 0; i < VHT_RATE_IDX; i++) {
-				num_bytes_diff = p_dm_soml_table->num_vht_bytes[i] - p_dm_soml_table->pre_num_vht_bytes[i];
-				p_dm_soml_table->num_vht_bytes_off[i] += num_bytes_diff;
-				p_dm_soml_table->pre_num_vht_bytes[i] = p_dm_soml_table->num_vht_bytes[i];
+		}
+	} else if (on_off_state == SOML_OFF) {
+		if (*p_dm->p_channel <= 14) {
+			for (i = ODM_RATEMCS0; i <= ODM_RATEMCS15; i++) {
+				num_bytes_diff = p_dm_soml_table->num_ht_bytes[i - ODM_RATEMCS0] - p_dm_soml_table->pre_num_ht_bytes[i - ODM_RATEMCS0];
+				p_dm_soml_table->num_ht_bytes_off[i - ODM_RATEMCS0] += num_bytes_diff;
+				p_dm_soml_table->pre_num_ht_bytes[i - ODM_RATEMCS0] = p_dm_soml_table->num_ht_bytes[i - ODM_RATEMCS0];
+			}
+		}
+		if (p_dm->support_ic_type == ODM_RTL8822B) {
+			for (i = ODM_RATEVHTSS1MCS0; i <= ODM_RATEVHTSS2MCS9; i++) {
+				num_bytes_diff = p_dm_soml_table->num_vht_bytes[i - ODM_RATEVHTSS1MCS0] - p_dm_soml_table->pre_num_vht_bytes[i - ODM_RATEVHTSS1MCS0];
+				p_dm_soml_table->num_vht_bytes_off[i - ODM_RATEVHTSS1MCS0] += num_bytes_diff;
+				p_dm_soml_table->pre_num_vht_bytes[i - ODM_RATEVHTSS1MCS0] = p_dm_soml_table->num_vht_bytes[i - ODM_RATEVHTSS1MCS0];
 			}
 		}
 	}
@@ -255,152 +290,127 @@ phydm_adsl(
 	else if (p_dm->support_ic_type & ODM_IC_2SS)
 		rate_num = 2;
 
-	if ((p_dm->support_ic_type & ODM_ADAPTIVE_SOML_SUPPORT_IC)) {
-		if (p_dm->number_active_client == 1) {
-			PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("rssi_min =%d\n", p_dm->rssi_min));
-			if ((p_dm->rssi_min >= SOML_RSSI_TH_HIGH) || (p_dm_soml_table->is_soml_method_enable == 1)) {
+	if (!(p_dm->support_ic_type & ODM_ADAPTIVE_SOML_SUPPORT_IC))
+		return;
 
-				PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("> TH_H || is_soml_method_enable==1\n"));
+	PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("rssi_min =%d\n", p_dm->rssi_min));
+	PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("soml_state_cnt =((%d))\n", p_dm_soml_table->soml_state_cnt));
+	/*Traning state: 0(alt) 1(ori) 2(alt) 3(ori)============================================================*/
+	if (p_dm_soml_table->soml_state_cnt < (p_dm_soml_table->soml_train_num << 1)) {
 
-				if (p_dm->rssi_min >= SOML_RSSI_TH_LOW) {
-					PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("> TH_L, soml_state_cnt =((%d))\n", p_dm_soml_table->soml_state_cnt));
-					/*Traning state: 0(alt) 1(ori) 2(alt) 3(ori)============================================================*/
-					if (p_dm_soml_table->soml_state_cnt < ((p_dm_soml_table->soml_train_num)<<1)) {
+		if (p_dm_soml_table->soml_state_cnt == 0) {
 
-						if (p_dm_soml_table->soml_state_cnt == 0) {
+			odm_move_memory(p_dm, p_dm_soml_table->num_ht_bytes, ht_reset, HT_RATE_IDX * size);
+			odm_move_memory(p_dm, p_dm_soml_table->num_ht_bytes_on, ht_reset, HT_RATE_IDX * size);
+			odm_move_memory(p_dm, p_dm_soml_table->num_ht_bytes_off, ht_reset, HT_RATE_IDX * size);
+			odm_move_memory(p_dm, p_dm_soml_table->num_vht_bytes, vht_reset, VHT_RATE_IDX * size);
+			odm_move_memory(p_dm, p_dm_soml_table->num_vht_bytes_on, vht_reset, VHT_RATE_IDX * size);
+			odm_move_memory(p_dm, p_dm_soml_table->num_vht_bytes_off, vht_reset, VHT_RATE_IDX * size);
 
-							if (p_dm->support_ic_type == ODM_RTL8197F) {
+			p_dm_soml_table->is_soml_method_enable = 1;
+			p_dm_soml_table->soml_state_cnt++;
+			next_on_off = (p_dm_soml_table->soml_on_off == SOML_ON) ? SOML_ON : SOML_OFF;
+			phydm_soml_on_off(p_dm, next_on_off);
+			odm_set_timer(p_dm, &p_dm_soml_table->phydm_adaptive_soml_timer, p_dm_soml_table->soml_delay_time); /*ms*/
+		} else if ((p_dm_soml_table->soml_state_cnt % 2) != 0) {
 
-								odm_move_memory(p_dm, p_dm_soml_table->num_ht_bytes, ht_reset, HT_RATE_IDX*size);
-								odm_move_memory(p_dm, p_dm_soml_table->num_ht_bytes_on, ht_reset, HT_RATE_IDX*size);
-								odm_move_memory(p_dm, p_dm_soml_table->num_ht_bytes_off, ht_reset, HT_RATE_IDX*size);
-							} else if (p_dm->support_ic_type == ODM_RTL8822B) {
+			p_dm_soml_table->soml_state_cnt++;
+			odm_move_memory(p_dm, p_dm_soml_table->pre_num_ht_bytes, p_dm_soml_table->num_ht_bytes, HT_RATE_IDX * size);
+			odm_move_memory(p_dm, p_dm_soml_table->pre_num_vht_bytes, p_dm_soml_table->num_vht_bytes, VHT_RATE_IDX * size);
+			odm_set_timer(p_dm, &p_dm_soml_table->phydm_adaptive_soml_timer, p_dm_soml_table->soml_intvl); /*ms*/
+		} else if ((p_dm_soml_table->soml_state_cnt % 2) == 0) {
 
-								odm_move_memory(p_dm, p_dm_soml_table->num_vht_bytes, vht_reset, VHT_RATE_IDX*size);
-								odm_move_memory(p_dm, p_dm_soml_table->num_vht_bytes_on, vht_reset, VHT_RATE_IDX*size);
-								odm_move_memory(p_dm, p_dm_soml_table->num_vht_bytes_off, vht_reset, VHT_RATE_IDX*size);
-							}
-
-							p_dm_soml_table->is_soml_method_enable = 1;
-							p_dm_soml_table->soml_state_cnt++;
-							next_on_off = (p_dm_soml_table->soml_on_off == SOML_ON) ? SOML_ON : SOML_OFF;
-							phydm_soml_on_off(p_dm, next_on_off);
-							odm_set_timer(p_dm, &p_dm_soml_table->phydm_adaptive_soml_timer, p_dm_soml_table->soml_delay_time); /*ms*/
-						} else if ((p_dm_soml_table->soml_state_cnt % 2) != 0) {
-
-							p_dm_soml_table->soml_state_cnt++;
-							if (p_dm->support_ic_type == ODM_RTL8197F)
-								odm_move_memory(p_dm, p_dm_soml_table->pre_num_ht_bytes, p_dm_soml_table->num_ht_bytes, HT_RATE_IDX*size);
-							else if (p_dm->support_ic_type == ODM_RTL8822B)
-								odm_move_memory(p_dm, p_dm_soml_table->pre_num_vht_bytes, p_dm_soml_table->num_vht_bytes, VHT_RATE_IDX*size);
-							odm_set_timer(p_dm, &p_dm_soml_table->phydm_adaptive_soml_timer, p_dm_soml_table->soml_intvl); /*ms*/
-						} else if ((p_dm_soml_table->soml_state_cnt % 2) == 0) {
-
-							p_dm_soml_table->soml_state_cnt++;
-							phydm_soml_statistics(p_dm, p_dm_soml_table->soml_on_off);
-							next_on_off = (p_dm_soml_table->soml_on_off == SOML_ON) ? SOML_OFF : SOML_ON;
-							phydm_soml_on_off(p_dm, next_on_off);
-							odm_set_timer(p_dm, &p_dm_soml_table->phydm_adaptive_soml_timer, p_dm_soml_table->soml_delay_time); /*ms*/
-						}
-					}
-					/*Decision state: ==============================================================*/
-					else {
-
-						p_dm_soml_table->soml_state_cnt = 0;
-						phydm_soml_statistics(p_dm, p_dm_soml_table->soml_on_off);
-
-						/* [Search 1st and 2ed rate by counter] */
-						if (p_dm->support_ic_type == ODM_RTL8197F) {
-
-							for (i = 0; i < rate_num; i++) {
-								rate_ss_shift = (i << 3);
-								PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("*num_ht_bytes_on  HT MCS[%d :%d ] = {%d, %d, %d, %d, %d, %d, %d, %d}\n",
-									(rate_ss_shift), (rate_ss_shift+7),
-									p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 0], p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 1],
-									p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 2], p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 3],
-									p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 4], p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 5],
-									p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 6], p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 7]));
-							}
-
-							for (i = 0; i < rate_num; i++) {
-								rate_ss_shift = (i << 3);
-								PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("*num_ht_bytes_off  HT MCS[%d :%d ] = {%d, %d, %d, %d, %d, %d, %d, %d}\n",
-									(rate_ss_shift), (rate_ss_shift+7),
-									p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 0], p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 1],
-									p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 2], p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 3],
-									p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 4], p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 5],
-									p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 6], p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 7]));
-							}
-
-							for (i = 0; i < HT_RATE_IDX; i++) {
-
-								byte_total_on += p_dm_soml_table->num_vht_bytes_on[i];
-								byte_total_off += p_dm_soml_table->num_vht_bytes_off[i];
-							}
-
-						} else if (p_dm->support_ic_type == ODM_RTL8822B) {
-
-							for (i = 0; i < rate_num; i++) {
-								rate_ss_shift = 10 * i;
-								PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("* num_vht_bytes_on  VHT-%d ss MCS[0:9] = {%d, %d, %d, %d, %d, %d, %d, %d, %d, %d}\n",
-									(i + 1),
-									p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 0], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 1],
-									p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 2], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 3],
-									p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 4], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 5],
-									p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 6], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 7],
-									p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 8], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 9]));
-							}
-
-							for (i = 0; i < rate_num; i++) {
-								rate_ss_shift = 10 * i;
-								PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("* num_vht_bytes_off  VHT-%d ss MCS[0:9] = {%d, %d, %d, %d, %d, %d, %d, %d, %d, %d}\n",
-									(i + 1),
-									p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 0], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 1],
-									p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 2], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 3],
-									p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 4], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 5],
-									p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 6], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 7],
-									p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 8], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 9]));
-							}
-							for (i = 0; i < VHT_RATE_IDX; i++) {
-								byte_total_on += p_dm_soml_table->num_vht_bytes_on[i];
-								byte_total_off += p_dm_soml_table->num_vht_bytes_off[i];
-							}
-						}
-
-						/* [Decision] */
-						PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[  byte_total_on = %d ; byte_total_off = %d ]\n", byte_total_on, byte_total_off));
-						PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[Decisoin state ]\n"));
-						if (byte_total_on > byte_total_off) {
-							next_on_off = SOML_ON;
-							PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[ byte_total_on > byte_total_off ==> SOML_ON ]\n"));
-						} else if (byte_total_on < byte_total_off) {
-							next_on_off = SOML_OFF;
-							PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[ byte_total_on < byte_total_off ==> SOML_OFF ]\n"));
-						} else {
-							PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[ stay at soml_last_state ]\n"));
-							next_on_off = p_dm_soml_table->soml_last_state;
-						}
-
-						PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[ Final decisoin ] : "));
-						phydm_soml_on_off(p_dm, next_on_off);
-						p_dm_soml_table->soml_last_state = next_on_off;
-					}
-				} else { /* RSSI< = SOML_RSSI_TH_LOW */
-					PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[ <TH_L: escape from > TH_L ]\n"));
-					phydm_adaptive_soml_reset(p_dm);
-					phydm_soml_on_off(p_dm, SOML_ON);
-				}
-			} else {
-				PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[escape from > TH_H || is_soml_method_enable==1]\n"));
-				phydm_adaptive_soml_reset(p_dm);
-				phydm_soml_on_off(p_dm, SOML_ON);
-			}
-		} else {
-			PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[multi-Client]\n"));
-			phydm_adaptive_soml_reset(p_dm);
-			phydm_soml_on_off(p_dm, SOML_ON);
+			p_dm_soml_table->soml_state_cnt++;
+			phydm_soml_statistics(p_dm, p_dm_soml_table->soml_on_off);
+			next_on_off = (p_dm_soml_table->soml_on_off == SOML_ON) ? SOML_OFF : SOML_ON;
+			phydm_soml_on_off(p_dm, next_on_off);
+			odm_set_timer(p_dm, &p_dm_soml_table->phydm_adaptive_soml_timer, p_dm_soml_table->soml_delay_time); /*ms*/
 		}
 	}
+	/*Decision state: ==============================================================*/
+	else {
+
+		p_dm_soml_table->soml_state_cnt = 0;
+		phydm_soml_statistics(p_dm, p_dm_soml_table->soml_on_off);
+
+		/* [Search 1st and 2ed rate by counter] */
+		if (*p_dm->p_channel <= 14) {
+
+			for (i = 0; i < rate_num; i++) {
+				rate_ss_shift = (i << 3);
+				PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("*num_ht_bytes_on  HT MCS[%d :%d ] = {%d, %d, %d, %d, %d, %d, %d, %d}\n",
+					  (rate_ss_shift),
+					  (rate_ss_shift + 7),
+					  p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 0], p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 1],
+					  p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 2], p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 3],
+					  p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 4], p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 5],
+					  p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 6], p_dm_soml_table->num_ht_bytes_on[rate_ss_shift + 7]));
+			}
+
+			for (i = 0; i < rate_num; i++) {
+				rate_ss_shift = (i << 3);
+				PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("*num_ht_bytes_off  HT MCS[%d :%d ] = {%d, %d, %d, %d, %d, %d, %d, %d}\n",
+					  (rate_ss_shift), (rate_ss_shift + 7),
+					  p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 0], p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 1],
+					  p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 2], p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 3],
+					  p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 4], p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 5],
+					  p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 6], p_dm_soml_table->num_ht_bytes_off[rate_ss_shift + 7]));
+			}
+
+			for (i = ODM_RATEMCS8; i <= ODM_RATEMCS15; i++) {
+
+				byte_total_on += p_dm_soml_table->num_ht_bytes_on[i - ODM_RATEMCS0];
+				byte_total_off += p_dm_soml_table->num_ht_bytes_off[i - ODM_RATEMCS0];
+			}
+
+		} else if (p_dm->support_ic_type == ODM_RTL8822B) {
+
+			for (i = 0; i < rate_num; i++) {
+				rate_ss_shift = 10 * i;
+				PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("* num_vht_bytes_on  VHT-%d ss MCS[0:9] = {%d, %d, %d, %d, %d, %d, %d, %d, %d, %d}\n",
+					 (i + 1),
+					  p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 0], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 1],
+					  p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 2], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 3],
+					  p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 4], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 5],
+					  p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 6], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 7],
+					  p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 8], p_dm_soml_table->num_vht_bytes_on[rate_ss_shift + 9]));
+			}
+
+			for (i = 0; i < rate_num; i++) {
+				rate_ss_shift = 10 * i;
+				PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("* num_vht_bytes_off  VHT-%d ss MCS[0:9] = {%d, %d, %d, %d, %d, %d, %d, %d, %d, %d}\n",
+					 (i + 1),
+					  p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 0], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 1],
+					  p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 2], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 3],
+					  p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 4], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 5],
+					  p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 6], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 7],
+					  p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 8], p_dm_soml_table->num_vht_bytes_off[rate_ss_shift + 9]));
+			}
+			for (i = ODM_RATEVHTSS2MCS0; i <= ODM_RATEVHTSS2MCS9; i++) {
+				byte_total_on += p_dm_soml_table->num_vht_bytes_on[i - ODM_RATEVHTSS1MCS0];
+				byte_total_off += p_dm_soml_table->num_vht_bytes_off[i - ODM_RATEVHTSS1MCS0];
+			}
+		}
+
+		/* [Decision] */
+		PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[  byte_total_on = %d ; byte_total_off = %d ]\n", byte_total_on, byte_total_off));
+		PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[Decisoin state ]\n"));
+		if (byte_total_on > byte_total_off) {
+			next_on_off = SOML_ON;
+			PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[ byte_total_on > byte_total_off ==> SOML_ON ]\n"));
+		} else if (byte_total_on < byte_total_off) {
+			next_on_off = SOML_OFF;
+			PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[ byte_total_on < byte_total_off ==> SOML_OFF ]\n"));
+		} else {
+			PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[ stay at soml_last_state ]\n"));
+			next_on_off = p_dm_soml_table->soml_last_state;
+		}
+
+		PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[ Final decisoin ] : "));
+		phydm_soml_on_off(p_dm, next_on_off);
+		p_dm_soml_table->soml_last_state = next_on_off;
+	}
+
 }
 
 void
@@ -417,6 +427,24 @@ phydm_adaptive_soml_reset(
 }
 
 #endif /* end of CONFIG_ADAPTIVE_SOML*/
+void
+phydm_soml_bytes_acq(
+	void		*dm_void,
+	u8		rate_id,
+	u32		length
+)
+{
+#ifdef CONFIG_ADAPTIVE_SOML
+	struct PHY_DM_STRUCT		*dm = (struct PHY_DM_STRUCT *)dm_void;
+	struct adaptive_soml	*dm_soml_table = &dm->dm_soml_table;
+
+	if ((rate_id >= ODM_RATEMCS0) && (rate_id <= ODM_RATEMCS31))
+		dm_soml_table->num_ht_bytes[rate_id - ODM_RATEMCS0] += length;
+	else if ((rate_id >= ODM_RATEVHTSS1MCS0) && (rate_id <= ODM_RATEVHTSS4MCS9))
+		dm_soml_table->num_vht_bytes[rate_id - ODM_RATEVHTSS1MCS0] += length;
+
+#endif
+}
 
 void
 phydm_adaptive_soml_timers(
@@ -448,10 +476,6 @@ phydm_adaptive_soml_init(
 	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
 	struct adaptive_soml	*p_dm_soml_table = &p_dm->dm_soml_table;
 
-	if (!(p_dm->support_ability & ODM_BB_ADAPTIVE_SOML)) {
-		PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("[Return]   Not Support Adaptive SOML\n"));
-		return;
-	}
 	PHYDM_DBG(p_dm, DBG_ADPTV_SOML, ("phydm_adaptive_soml_init\n"));
 
 	p_dm_soml_table->soml_state_cnt = 0;
@@ -462,6 +486,8 @@ phydm_adaptive_soml_init(
 	p_dm_soml_table->soml_counter = 0;
 	p_dm_soml_table->soml_period = 4;
 	p_dm_soml_table->soml_select = 0;
+	if (p_dm->support_ic_type & (ODM_RTL8197F | ODM_RTL8192F))
+		odm_set_bb_reg(p_dm, 0x988, BIT(25), 1);
 #endif
 }
 
@@ -498,9 +524,58 @@ phydm_adaptive_soml(
 		phydm_soml_on_off(p_dm, SOML_OFF);
 		return;
 	}
+	if (p_dm->support_ic_type & ODM_ADAPTIVE_SOML_SUPPORT_IC)
+		phydm_adsl(p_dm);
 
-	phydm_adsl(p_dm);
+#endif
+}
 
+void
+phydm_enable_adaptive_soml(
+	void		*dm_void
+)
+{
+#ifdef CONFIG_ADAPTIVE_SOML
+	struct PHY_DM_STRUCT		*dm = (struct PHY_DM_STRUCT *)dm_void;
+
+	PHYDM_DBG(dm, DBG_ADPTV_SOML, ("[%s][Return!!!]  enable Adaptive SOML\n\n", __func__));
+	dm->support_ability |= ODM_BB_ADAPTIVE_SOML;
+	phydm_soml_on_off(dm, SOML_ON);
+#endif
+}
+
+void
+phydm_stop_adaptive_soml(
+	void		*dm_void
+)
+{
+#ifdef CONFIG_ADAPTIVE_SOML
+	struct PHY_DM_STRUCT		*dm = (struct PHY_DM_STRUCT *)dm_void;
+
+	PHYDM_DBG(dm, DBG_ADPTV_SOML, ("[%s][Return!!!]  Stop Adaptive SOML\n\n", __func__));
+	dm->support_ability &= ~ODM_BB_ADAPTIVE_SOML;
+	phydm_soml_on_off(dm, SOML_ON);
+
+#endif
+}
+
+void
+phydm_adaptive_soml_para_set(
+	void		*dm_void,
+	u8		train_num,
+	u8		intvl,
+	u8		period,
+	u8		delay_time
+)
+{
+#ifdef CONFIG_ADAPTIVE_SOML
+	struct PHY_DM_STRUCT		*dm = (struct PHY_DM_STRUCT *)dm_void;
+	struct adaptive_soml	*dm_soml_table = &dm->dm_soml_table;
+
+	dm_soml_table->soml_train_num = train_num;
+	dm_soml_table->soml_intvl = intvl;
+	dm_soml_table->soml_period = period;
+	dm_soml_table->soml_delay_time = delay_time;
 #endif
 }
 

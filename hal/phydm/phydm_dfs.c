@@ -480,6 +480,8 @@ phydm_radar_detect_dm_check(
 			}
 		}
 		fa_flag = 1;
+	} else {
+		p_dfs->radar_det_mask_hist[index] = 0;
 	}
 
 	if (p_dfs->det_print) {
@@ -494,7 +496,7 @@ phydm_radar_detect_dm_check(
 		for (i=0; i<5; i++)			
 			PHYDM_DBG(p_dm, DBG_DFS, ("%d ", p_dfs->fa_inc_hist[i]));
 		PHYDM_DBG(p_dm, DBG_DFS,
-			("\nmax_fa_in_hist: %d pre_post_now_acc_fa_in_hist: %d ", max_fa_in_hist, pre_post_now_acc_fa_in_hist));
+			("\nfa_mask_th: %d max_fa_in_hist: %d total_fa_in_hist: %d pre_post_now_acc_fa_in_hist: %d ", fa_mask_th, max_fa_in_hist, total_fa_in_hist, pre_post_now_acc_fa_in_hist));
 	}
 
 	sum = 0;
@@ -547,7 +549,7 @@ phydm_radar_detect_dm_check(
 		odm_set_bb_reg(p_dm, 0x918, 0x00001f00, p_dfs->pwdb_th);
 	}
 
-	if (p_dfs->det_print2) {
+	if (p_dfs->det_print) {
 		PHYDM_DBG(p_dm, DBG_DFS,
 			("fault_flag_det[%d], fault_flag_psd[%d], DFS_detected [%d]\n", fault_flag_det, fault_flag_psd, radar_detected));
 	}

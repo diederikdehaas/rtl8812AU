@@ -55,7 +55,7 @@ phydm_get_mu_bfee_snding_decision(
 );
 
 #else
-#define phydm_get_beamforming_sounding_info(p_dm_void, troughput, total_bfee_num, tx_rate)
+#define phydm_get_beamforming_sounding_info(p_dm_void, troughput, total_bfee_num, tx_rate) 0
 #define phydm_get_ndpa_rate(p_dm_void)
 #define phydm_get_mu_bfee_snding_decision(p_dm_void, troughput)
 

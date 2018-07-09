@@ -109,7 +109,7 @@ rtw_phydm_cfg_phy_para(
 #endif
 
 /* JJ ADD 20161014 */
-#if (DM_ODM_SUPPORT_TYPE & (ODM_CE|ODM_AP|ODM_IOT))
+#if (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_IOT))
 #define RTL8710B_SUPPORT		0
 #endif
 

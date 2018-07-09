@@ -72,6 +72,7 @@ phydm_init_debug_setting(
 	p_dm->fw_buff_is_enpty = true;
 	p_dm->pre_c2h_seq = 0;
 	p_dm->c2h_cmd_start = 0;
+	phydm_reset_rx_rate_distribution(p_dm);
 }
 
 void
@@ -955,6 +956,114 @@ phydm_rx_rate_distribution
 	
 }
 
+
+void phydm_print_hist_2_buf(void *dm_void, u16 *val, u16 len, char *buf,
+			    u16 buf_size)
+{
+	struct PHY_DM_STRUCT *dm = (struct PHY_DM_STRUCT *)dm_void;
+
+	if (len == PHY_HIST_SIZE) {
+		PHYDM_PRINT2BUF(buf, buf_size,
+			       "[%.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d]",
+			       val[0], val[1], val[2], val[3], val[4],
+			       val[5], val[6], val[7], val[8], val[9],
+			       val[10], val[11]);
+	} else if (len == (PHY_HIST_SIZE - 1)) {
+		PHYDM_PRINT2BUF(buf, buf_size,
+			       "[%.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d, %.2d]",
+			       val[0], val[1], val[2], val[3], val[4],
+			       val[5], val[6], val[7], val[8], val[9],
+			       val[10]);
+	}
+}
+
+void phydm_nss_hitogram(void *dm_void, enum PDM_RATE_TYPE rate_type)
+{
+	struct PHY_DM_STRUCT *dm = (struct PHY_DM_STRUCT *)dm_void;
+	struct _odm_phy_dbg_info_ *dbg_i = &dm->phy_dbg_info;
+	struct phydm_phystatus_statistic *dbg_s = &dbg_i->phystatus_statistic_info;
+	char buf[PHYDM_SNPRINT_SIZE] = {0};
+	u16 buf_size = PHYDM_SNPRINT_SIZE;
+	u16 h_size = PHY_HIST_SIZE;
+	u16 *evm_hist = NULL, *snr_hist = NULL;
+	u8 i = 0;
+	u8 ss = phydm_rate_type_2_num_ss(dm, rate_type);
+
+	for (i = 0; i < ss; i++) {
+		if (rate_type == PDM_1SS) {
+			evm_hist = &dbg_s->evm_1ss_hist[0];
+			snr_hist = &dbg_s->snr_1ss_hist[0];
+		} else if (rate_type == PDM_2SS) {
+			#if (defined(PHYDM_COMPILE_ABOVE_2SS))
+			evm_hist = &dbg_s->evm_2ss_hist[i][0];
+			snr_hist = &dbg_s->snr_2ss_hist[i][0];
+			#endif
+		} else if (rate_type == PDM_3SS) {
+			#if (defined(PHYDM_COMPILE_ABOVE_3SS))
+			evm_hist = &dbg_s->evm_3ss_hist[i][0];
+			snr_hist = &dbg_s->snr_3ss_hist[i][0];
+			#endif
+		} else if (rate_type == PDM_4SS) {
+			#if (defined(PHYDM_COMPILE_ABOVE_4SS))
+			evm_hist = &dbg_s->evm_4ss_hist[i][0];
+			snr_hist = &dbg_s->snr_4ss_hist[i][0];
+			#endif
+		}
+
+		phydm_print_hist_2_buf(dm, evm_hist, h_size, buf, buf_size);
+		PHYDM_DBG(dm, ODM_COMP_COMMON, ("[%d-SS][EVM][%d]=%s\n", ss, i, buf));
+		phydm_print_hist_2_buf(dm, snr_hist, h_size, buf, buf_size);
+		PHYDM_DBG(dm, ODM_COMP_COMMON, ("[%d-SS][SNR][%d]=%s\n",  ss, i, buf));
+	}
+}
+
+void phydm_show_phy_hitogram(void *dm_void)
+{
+	struct PHY_DM_STRUCT *dm = (struct PHY_DM_STRUCT *)dm_void;
+	struct _odm_phy_dbg_info_ *dbg_i = &dm->phy_dbg_info;
+	struct phydm_phystatus_statistic *dbg_s = &dbg_i->phystatus_statistic_info;
+	char buf[PHYDM_SNPRINT_SIZE] = {0};
+	u16 buf_size = PHYDM_SNPRINT_SIZE;
+	u16 th_size = PHY_HIST_SIZE - 1;
+	u8 i = 0;
+
+	PHYDM_DBG(dm, ODM_COMP_COMMON, ("[PHY Histogram] ==============>\n"));
+/*===[Threshold]==============================================================*/
+	phydm_print_hist_2_buf(dm, dbg_i->evm_hist_th, th_size, buf, buf_size);
+	PHYDM_DBG(dm, ODM_COMP_COMMON, ("%-16s=%s\n", "[EVM_TH]", buf));
+
+	phydm_print_hist_2_buf(dm, dbg_i->snr_hist_th, th_size, buf, buf_size);
+	PHYDM_DBG(dm, ODM_COMP_COMMON, ("%-16s=%s\n", "[SNR_TH]", buf));
+/*===[OFDM]===================================================================*/
+	if (dbg_s->rssi_ofdm_cnt) {
+		phydm_print_hist_2_buf(dm, dbg_s->evm_ofdm_hist, PHY_HIST_SIZE,
+				       buf, buf_size);
+		PHYDM_DBG(dm, ODM_COMP_COMMON, ("%-14s=%s\n", "[OFDM][EVM]", buf));
+
+		phydm_print_hist_2_buf(dm, dbg_s->snr_ofdm_hist, PHY_HIST_SIZE,
+				       buf, buf_size);
+		PHYDM_DBG(dm, ODM_COMP_COMMON, ("%-14s=%s\n", "[OFDM][SNR]", buf));
+	}
+/*===[1-SS]===================================================================*/
+	if (dbg_s->rssi_1ss_cnt)
+		phydm_nss_hitogram(dm, PDM_1SS);
+/*===[2-SS]===================================================================*/
+	#if (defined(PHYDM_COMPILE_ABOVE_2SS))
+	if ((dm->support_ic_type & PHYDM_IC_ABOVE_2SS) && dbg_s->rssi_2ss_cnt)
+		phydm_nss_hitogram(dm, PDM_2SS);
+	#endif
+/*===[3-SS]===================================================================*/
+	#if (defined(PHYDM_COMPILE_ABOVE_3SS))
+	if ((dm->support_ic_type & PHYDM_IC_ABOVE_3SS) && dbg_s->rssi_3ss_cnt)
+		phydm_nss_hitogram(dm, PDM_3SS);
+	#endif
+/*===[4-SS]===================================================================*/
+	#if (defined(PHYDM_COMPILE_ABOVE_4SS))
+	if (dm->support_ic_type & PHYDM_IC_ABOVE_4SS && dbg_s->rssi_4ss_cnt)
+		phydm_nss_hitogram(dm, PDM_4SS);
+	#endif
+}
+
 void
 phydm_get_avg_phystatus_val
 (
@@ -1081,6 +1190,7 @@ phydm_get_phy_statistic(
 	phydm_rx_rate_distribution(p_dm);
 	phydm_reset_rx_rate_distribution(p_dm);
 	
+	phydm_show_phy_hitogram(p_dm);
 	phydm_get_avg_phystatus_val(p_dm);
 	phydm_reset_phystatus_statistic(p_dm);
 };
@@ -1102,8 +1212,8 @@ phydm_basic_dbg_message
 	s32	tmp_val = 0;
 	u8	tmp_val_u1 = 0;
 
-	if (!(p_dm->debug_components & ODM_COMP_COMMON))
-		return;
+	/* if (!(p_dm->debug_components & ODM_COMP_COMMON)) */
+	/* return; */
 
 	PHYDM_DBG(p_dm, ODM_COMP_COMMON, ("[PHYDM Common MSG] System up time: ((%d sec))----->\n", p_dm->phydm_sys_up_time));
 

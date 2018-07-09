@@ -99,11 +99,21 @@ odm_fa_threshold_check(
 	struct PHY_DM_STRUCT	*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
 	struct phydm_dig_struct	*p_dig_t = &p_dm->dm_dig_table;
 
-	if (p_dig_t->is_dbg_fa_th == true)
-		return;
+	if (p_dig_t->is_dbg_fa_th) {
+
+		PHYDM_DBG(p_dm, DBG_DIG, ("Manual Fix FA_th\n"));
+
+	//if (p_dig_t->is_dbg_fa_th == true)
+		//return;
+
+	} else if (p_dm->is_linked && (is_performance || is_dfs_band)) {
+		if (p_dm->rssi_min < 20) {	/*[PHYDM-252]*/
+			p_dig_t->fa_th[0] = 500;
+			p_dig_t->fa_th[1] = 750;
+			p_dig_t->fa_th[2] = 1000;
 	
-	if (p_dm->is_linked && (is_performance || is_dfs_band)) {
-		if ((p_dm->rx_tp >> 2) > p_dm->tx_tp && p_dm->rx_tp < 10 && p_dm->rx_tp > 1) {			/*10Mbps & 1Mbps*/
+	//if (p_dm->is_linked && (is_performance || is_dfs_band)) {
+		} else if ((p_dm->rx_tp >> 2) > p_dm->tx_tp && p_dm->rx_tp < 10 && p_dm->rx_tp > 1) {			/*10Mbps & 1Mbps*/
 			p_dig_t->fa_th[0] = 125;
 			p_dig_t->fa_th[1] = 250;
 			p_dig_t->fa_th[2] = 500;
@@ -579,6 +589,7 @@ phydm_dig_dym_boundary_decision(
 {
 	struct phydm_dig_struct	*p_dig_t = &p_dm->dm_dig_table;
 	u8 offset = 15, tmp_max = 0;
+	u8 max_of_rssi_min = 0;
 
 	PHYDM_DBG(p_dm, DBG_DIG,
 			("Offset=((%d))\n", offset));
@@ -593,7 +604,11 @@ phydm_dig_dym_boundary_decision(
 
 	/* DIG upper bound */
 	tmp_max = p_dig_t->rx_gain_range_min + offset;
-
+	if (p_dig_t->rx_gain_range_min != p_dm->rssi_min) {
+		max_of_rssi_min = p_dm->rssi_min + offset;
+		if (tmp_max > max_of_rssi_min)
+			tmp_max = max_of_rssi_min;
+	}
 	if (tmp_max > p_dig_t->dm_dig_max)
 		p_dig_t->rx_gain_range_max = p_dig_t->dm_dig_max;
 	else

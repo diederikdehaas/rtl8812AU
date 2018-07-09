@@ -114,7 +114,7 @@ odm_tx_pwr_track_set_pwr8812a(
 	u8			final_cck_swing_index = 0;
 	u8			i = 0;
 	struct odm_rf_calibration_structure	*p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
-	struct _hal_rf_ *p_rf = &(p_dm->rf_table);
+	struct _hal_rf_	*p_rf = &(p_dm->rf_table);
 
 	if (*(p_dm->p_mp_mode) == true) {
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
@@ -328,7 +328,7 @@ get_delta_swing_table_8812a(
 	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
 	struct _ADAPTER			*adapter = p_dm->adapter;
 	struct odm_rf_calibration_structure	*p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
-	struct _hal_rf_ *p_rf = &(p_dm->rf_table);
+	struct _hal_rf_	*p_rf = &(p_dm->rf_table);
 	HAL_DATA_TYPE	*p_hal_data		 = GET_HAL_DATA(adapter);
 	u8		tx_rate			= 0xFF;
 	u8	channel		 = *p_dm->p_channel;
@@ -442,6 +442,10 @@ void _iqk_rx_fill_iqc_8812a(
 			odm_set_bb_reg(p_dm, 0xc10, 0x03ff0000, 0);
 			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
 		} else {
+			if (RX_X >= 0x20c)
+				RX_X = 0x20c;
+			else if (RX_X <= 0x1f4)
+				RX_X = 0x1f4;
 			odm_set_bb_reg(p_dm, 0xc10, 0x000003ff, RX_X >> 1);
 			odm_set_bb_reg(p_dm, 0xc10, 0x03ff0000, RX_Y >> 1);
 			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
@@ -457,6 +461,10 @@ void _iqk_rx_fill_iqc_8812a(
 			odm_set_bb_reg(p_dm, 0xe10, 0x03ff0000, 0);
 			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
 		} else {
+			if (RX_X >= 0x20c)
+				RX_X = 0x20c;
+			else if (RX_X <= 0x1f4)
+				RX_X = 0x1f4;
 			odm_set_bb_reg(p_dm, 0xe10, 0x000003ff, RX_X >> 1);
 			odm_set_bb_reg(p_dm, 0xe10, 0x03ff0000, RX_Y >> 1);
 			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x====>fill to IQC\n ", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
@@ -958,7 +966,8 @@ void _iqk_tx_8812a(
 				odm_set_bb_reg(p_dm, 0x978, 0x03FF8000, (TX_IQC[0]) & 0x000007ff);
 				odm_set_bb_reg(p_dm, 0x978, 0x000007FF, (TX_IQC[1]) & 0x000007ff);
 				odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-				if (p_dm->rfe_type == 1)
+				/*pathA RXIQK gain setting*/
+				if ((p_dm->rfe_type == 1) && (p_dm->ext_pa_5g))
 					odm_write_4byte(p_dm, 0xc8c, 0x28161500);
 				else
 					odm_write_4byte(p_dm, 0xc8c, 0x28160cc0);
@@ -973,7 +982,8 @@ void _iqk_tx_8812a(
 				odm_set_bb_reg(p_dm, 0x978, 0x03FF8000, (TX_IQC[2]) & 0x000007ff);
 				odm_set_bb_reg(p_dm, 0x978, 0x000007FF, (TX_IQC[3]) & 0x000007ff);
 				odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-				if (p_dm->rfe_type == 1)
+				/*pathB RXIQK gain setting*/
+				if ((p_dm->rfe_type == 1) && (p_dm->ext_pa_5g))
 					odm_write_4byte(p_dm, 0xe8c, 0x28161500);
 				else
 					odm_write_4byte(p_dm, 0xe8c, 0x28160ca0);
@@ -1340,6 +1350,9 @@ _phy_iq_calibrate_by_fw_8812a(
 //	rtl8812_iqk_wait(p_adapter, 500);
 }
 
+/*IQK version:0x2*/
+/*1. add RX IQK boundary*/
+/*2. fine tune RXIQK loop gain*/
 void
 phy_iq_calibrate_8812a(
 	void		*p_dm_void,
@@ -1371,7 +1384,7 @@ phy_lc_calibrate_8812a(
 }
 
 void _phy_set_rf_path_switch_8812a(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+#if ((DM_ODM_SUPPORT_TYPE & ODM_AP) || (DM_ODM_SUPPORT_TYPE == ODM_CE))
 	struct PHY_DM_STRUCT		*p_dm,
 #else
 	struct _ADAPTER	*p_adapter,
@@ -1381,13 +1394,13 @@ void _phy_set_rf_path_switch_8812a(
 )
 {
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-	HAL_DATA_TYPE	*p_hal_data = GET_HAL_DATA(p_adapter);
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	struct PHY_DM_STRUCT		*p_dm = &p_hal_data->odmpriv;
-#elif (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+	struct _ADAPTER	*p_adapter = p_dm->adapter;
+#endif
+	HAL_DATA_TYPE	*p_hal_data = GET_HAL_DATA(p_adapter);
+#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	struct PHY_DM_STRUCT		*p_dm = &p_hal_data->DM_OutSrc;
 #endif
-
 #endif
 
 	if (IS_HARDWARE_TYPE_8821(p_adapter)) {
@@ -1412,7 +1425,7 @@ void _phy_set_rf_path_switch_8812a(
 }
 
 void phy_set_rf_path_switch_8812a(
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+#if ((DM_ODM_SUPPORT_TYPE & ODM_AP) || (DM_ODM_SUPPORT_TYPE == ODM_CE))
 	struct PHY_DM_STRUCT		*p_dm,
 #else
 	struct _ADAPTER	*p_adapter,
@@ -1426,9 +1439,11 @@ void phy_set_rf_path_switch_8812a(
 #endif
 
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-
+#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+	_phy_set_rf_path_switch_8812a(p_dm, is_main, true);
+#else
 	_phy_set_rf_path_switch_8812a(p_adapter, is_main, true);
-
+#endif
 #endif
 }
 

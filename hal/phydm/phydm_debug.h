@@ -73,6 +73,8 @@
 #define	RA_H2C			BIT(5)
 #define	F_RATE_AP_RPT	BIT(7)
 
+#define PHYDM_SNPRINT_SIZE	64
+
 /* -----------------------------------------------------------------------------
  * Define the tracing components
  *
@@ -95,20 +97,24 @@
 	#define	dcmd_printf				DCMD_Printf
 	#define	dcmd_scanf				DCMD_Scanf
 	#define RT_PRINTK				dbg_print
+	#define PHYDM_PRINT2BUF				RT_SPRINTF
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE) && defined(DM_ODM_CE_MAC80211)
 	#define dbg_print(args...)
 	#define RT_PRINTK(fmt, args...)	\
 			RT_TRACE(((struct rtl_priv *)p_dm->adapter),	\
 				 COMP_PHYDM, DBG_DMESG, fmt, ## args)
 	#define	RT_DISP(dbgtype, dbgflag, printstr)
+	#define PHYDM_PRINT2BUF				snprintf
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	#define dbg_print	printk
 	#define RT_PRINTK(fmt, args...)	dbg_print(fmt, ## args)
 	#define	RT_DISP(dbgtype, dbgflag, printstr)
+	#define PHYDM_PRINT2BUF				snprintf
 #else
 	#define dbg_print	panic_printk
 	/*#define RT_PRINTK(fmt, args...)	dbg_print("%s(): " fmt, __FUNCTION__, ## args);*/
 	#define RT_PRINTK(args...)	dbg_print(args)
+	#define PHYDM_PRINT2BUF				snprintf
 #endif
 
 #ifndef ASSERT
@@ -214,26 +220,44 @@
 
 #define	PHYDM_SSCANF(x, y, z)	sscanf(x, y, z)
 
-#define	PHYDM_VAST_INFO_SNPRINTF(msg)\
+#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+	#define	PHYDM_VAST_INFO_SNPRINTF(msg)\
+		do {\
+			snprintf msg;\
+			dbg_print("%s\n", output);\
+		} while (0)
+#else
+	#define	PHYDM_VAST_INFO_SNPRINTF(msg)\
 	do {\
 		snprintf msg;\
 		dbg_print(output);\
 	} while (0)
+#endif
 
 #if (PHYDM_DBGPRINT == 1)
-#define	PHYDM_SNPRINTF(msg)\
-	do {\
-		snprintf msg;\
-		dbg_print(output);\
-	} while (0)
+	#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+	#define	PHYDM_SNPRINTF(msg)\
+		do {\
+			snprintf msg;\
+			dbg_print("%s\n", output);\
+		} while (0)
+	#else
+	#define	PHYDM_SNPRINTF(msg)\
+		do {\
+			snprintf msg;\
+			dbg_print(output);\
+		} while (0)
+	#endif
 #else
-#define	PHYDM_SNPRINTF(msg)\
-	do {\
-		if (out_len > used)\
-			used += snprintf msg;\
-	} while (0)
+	#define	PHYDM_SNPRINTF(msg)\
+		do {\
+			if (out_len > used)\
+				used += snprintf msg;\
+		} while (0)
+#endif /*#if (PHYDM_DBGPRINT == 1)*/
 #endif
-#endif
+
+void phydm_show_phy_hitogram(void *dm_void);
 
 void
 phydm_init_debug_setting(

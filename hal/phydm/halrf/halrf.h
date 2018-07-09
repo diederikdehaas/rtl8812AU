@@ -20,7 +20,7 @@
 /*============================================================*/
 /*include files*/
 /*============================================================*/
-
+#include "halrf/halrf_psd.h"
 
 
 /*============================================================*/
@@ -30,29 +30,29 @@
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
 #define IQK_VERSION_8188E	"0x14"
 #define IQK_VERSION_8192E	"0x01"
-#define IQK_VERSION_8723B	"0x1d"
+#define IQK_VERSION_8723B	"0x1e"
 #define IQK_VERSION_8812A	"0x01"
 #define IQK_VERSION_8821A	"0x01"
 #elif (DM_ODM_SUPPORT_TYPE & (ODM_CE))
 #define IQK_VERSION_8188E	"0x01"
 #define IQK_VERSION_8192E	"0x01"
-#define IQK_VERSION_8723B	"0x19"
+#define IQK_VERSION_8723B	"0x1e"
 #define IQK_VERSION_8812A	"0x01"
 #define IQK_VERSION_8821A	"0x01"
 #elif (DM_ODM_SUPPORT_TYPE & (ODM_AP))
 #define IQK_VERSION_8188E	"0x01"
 #define IQK_VERSION_8192E	"0x01"
-#define IQK_VERSION_8723B	"0x01"
+#define IQK_VERSION_8723B	"0x1e"
 #define IQK_VERSION_8812A	"0x01"
 #define IQK_VERSION_8821A	"0x01"
 #endif
 #define IQK_VERSION_8814A	"0x0f"
 #define IQK_VERSION_8188F	"0x01"
 #define IQK_VERSION_8197F	"0x01"
-#define IQK_VERSION_8703B	"0x04"
+#define IQK_VERSION_8703B	"0x05"
 #define IQK_VERSION_8710B	"0x01"
-#define IQK_VERSION_8723D	"0x01"
-#define IQK_VERSION_8822B	"0x2e"
+#define IQK_VERSION_8723D	"0x02"
+#define IQK_VERSION_8822B	"0x2f"
 #define IQK_VERSION_8821C	"0x23"
 
 /*LCK version*/
@@ -123,7 +123,11 @@ enum halrf_cmninfo_init_e {
 	HALRF_CMNINFO_FW_VER,
 	HALRF_CMNINFO_RFK_FORBIDDEN,
 	HALRF_CMNINFO_IQK_SEGMENT,
-	HALRF_CMNINFO_RATE_INDEX
+	HALRF_CMNINFO_RATE_INDEX,
+	HALRF_CMNINFO_MP_PSD_POINT,
+	HALRF_CMNINFO_MP_PSD_START_POINT,
+	HALRF_CMNINFO_MP_PSD_STOP_POINT,
+	HALRF_CMNINFO_MP_PSD_AVERAGE
 };
 
 enum halrf_cmninfo_hook_e {
@@ -161,6 +165,9 @@ struct _hal_rf_ {
 
 	u8		*p_mp_rate_index;
 	u32		p_rate_index;
+#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
+	struct	_halrf_psd_data	halrf_psd_data;
+#endif
 };
 
 /*============================================================*/

@@ -72,7 +72,7 @@ phydm_set_crystal_cap(
 	#if (RTL8710B_SUPPORT == 1)
 	else if (p_dm->support_ic_type & (ODM_RTL8710B)) {
 	
-		#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)		
+		#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 		/* write 0x60[29:24] = 0x60[23:18] = crystal_cap */
 		HAL_SetSYSOnReg(p_dm->adapter, REG_SYS_XTAL_CTRL0, 0x3FFC0000, (crystal_cap | (crystal_cap << 6)));
 		#endif
