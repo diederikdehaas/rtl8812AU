@@ -194,6 +194,7 @@ static struct usb_device_id rtw_usb_id_tbl[] ={
 	{USB_DEVICE(0x7392, 0xA811),.driver_info = RTL8821}, /* Edimax - Edimax */
 	{USB_DEVICE(0x7392, 0xA812),.driver_info = RTL8821}, /* Edimax - EW-7811UTC */
 	{USB_DEVICE(0x7392, 0xA813),.driver_info = RTL8821}, /* Edimax - EW-7811UAC */
+	{USB_DEVICE(0x3823, 0x6249),.driver_info = RTL8821}, /* Obihai - OBiWiFi */
 #endif
 
 #ifdef CONFIG_RTL8192E
