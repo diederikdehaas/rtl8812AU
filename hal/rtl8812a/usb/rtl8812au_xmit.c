@@ -430,7 +430,7 @@ u32 upload_txpktbuf_8812au(_adapter *adapter, u8 *buf, u32 buflen)
 		}
 		rtw_write32(adapter, REG_PKTBUF_DBG_CTRL, 0xff800000+(beacon_head<<6) + qw_addr);
 		loop_cnt = 0;
-		while ((rtw_read32(adapter, REG_PKTBUF_DBG_CTRL) & BIT23) == 1) {
+		while ((rtw_read32(adapter, REG_PKTBUF_DBG_CTRL) & BIT23) != 0) {
 			rtw_udelay_os(10);
 			if (loop_cnt++ == 100)
 				return _FALSE;
