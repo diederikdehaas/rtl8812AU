@@ -1331,8 +1331,9 @@ static s32 update_attrib(_adapter *padapter, _pkt *pkt, struct pkt_attrib *pattr
 		_rtw_memcpy(pattrib->ra, pattrib->dst, ETH_ALEN);
 		_rtw_memcpy(pattrib->ta, get_bssid(pmlmepriv), ETH_ALEN);
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_ap);
-	} else
+	} else {
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_unknown);
+	}
 
 	bmcast = IS_MCAST(pattrib->ra);
 	if (bmcast) {

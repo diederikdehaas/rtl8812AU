@@ -501,10 +501,11 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, union recv_frame *r
 #endif /* CONFIG_RTW_NAPI */
 
 		ret = rtw_netif_rx(padapter->pnetdev, pkt);
-		if (ret == NET_RX_SUCCESS)
+		if (ret == NET_RX_SUCCESS) {
 			DBG_COUNTER(padapter->rx_logs.os_netif_ok);
-		else
+		} else {
 			DBG_COUNTER(padapter->rx_logs.os_netif_err);
+		}
 	}
 }
 
@@ -519,17 +520,18 @@ void rtw_handle_tkip_mic_err(_adapter *padapter, struct sta_info *sta, u8 bgroup
 	struct security_priv	*psecuritypriv = &padapter->securitypriv;
 	systime cur_time = 0;
 
-	if (psecuritypriv->last_mic_err_time == 0)
+	if (psecuritypriv->last_mic_err_time == 0) {
 		psecuritypriv->last_mic_err_time = rtw_get_current_time();
-	else {
+	} else {
 		cur_time = rtw_get_current_time();
 
 		if (cur_time - psecuritypriv->last_mic_err_time < 60 * HZ) {
 			psecuritypriv->btkip_countermeasure = _TRUE;
 			psecuritypriv->last_mic_err_time = 0;
 			psecuritypriv->btkip_countermeasure_time = cur_time;
-		} else
+		} else {
 			psecuritypriv->last_mic_err_time = rtw_get_current_time();
+		}
 	}
 
 #ifdef CONFIG_IOCTL_CFG80211
