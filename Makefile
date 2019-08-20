@@ -16,6 +16,10 @@ EXTRA_CFLAGS += -Wno-unused-function
 #EXTRA_CFLAGS += -Wno-uninitialized
 EXTRA_CFLAGS += -Wno-vla
 EXTRA_CFLAGS += -Wno-type-limits
+# The flag below is only needed on Debian kernel <= 4.2 and raspbian/raspberrypi (all versions)
+#EXTRA_CFLAGS += -Wno-missing-field-initializers
+# The flag below is only needed on raspbian/raspberrypi kernels (all versions)
+#EXTRA_CFLAGS += -Wno-sign-compare
 
 GCC_VER_49 := $(shell echo `$(CC) -dumpversion | cut -f1-2 -d.` \>= 4.9 | bc )
 ifeq ($(GCC_VER_49),1)
