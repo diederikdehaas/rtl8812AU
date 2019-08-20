@@ -26,6 +26,7 @@ EXTRA_CFLAGS += -Wno-unused
 EXTRA_CFLAGS += -Wno-sign-compare
 EXTRA_CFLAGS += -Wno-missing-field-initializers
 EXTRA_CFLAGS += -Wno-type-limits
+EXTRA_CFLAGS += -Wno-vla
 
 #EXTRA_CFLAGS += -Wno-uninitialized
 
