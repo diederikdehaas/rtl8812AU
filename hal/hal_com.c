@@ -5878,14 +5878,26 @@ u32 Hal_readPGDataFromConfigFile(
 	set_fs(KERNEL_DS);
 
 	for (i = 0 ; i < HWSET_MAX_SIZE ; i++) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+		kernel_read(fp, temp, 2, &pos);
+#else
 		vfs_read(fp, temp, 2, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 		PROMContent[i] = simple_strtoul(temp, NULL, 16);
 		if ((i % EFUSE_FILE_COLUMN_NUM) == (EFUSE_FILE_COLUMN_NUM - 1)) {
 			//Filter the lates space char.
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+			kernel_read(fp, temp, 1, &pos);
+#else
 			vfs_read(fp, temp, 1, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 			if (strchr(temp, ' ') == NULL) {
 				pos--;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+				kernel_read(fp, temp, 2, &pos);
+#else
 				vfs_read(fp, temp, 2, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 			}
 		} else {
 			pos += 1; // Filter the space character
@@ -5929,7 +5941,11 @@ void Hal_ReadMACAddrFromFile(
 	set_fs(KERNEL_DS);
 
 	DBG_871X("wifi mac address:\n");
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+	kernel_read(fp, source_addr, 18, &pos);
+#else
 	vfs_read(fp, source_addr, 18, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 	source_addr[17] = ':';
 
 	head = end = source_addr;

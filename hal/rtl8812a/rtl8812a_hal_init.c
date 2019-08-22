@@ -3655,7 +3655,11 @@ static s32 _halReadPGDataFromFile(PADAPTER padapter, u8 *pbuf)
 	set_fs(KERNEL_DS);
 	for (i=0; i<HWSET_MAX_SIZE_JAGUAR; i++)
 	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+		kernel_read(fp, temp, 2, &pos);
+#else
 		vfs_read(fp, temp, 2, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 		pbuf[i] = simple_strtoul(temp, NULL, 16);
 		pos += 1; // Filter the space character
 	}
@@ -3710,7 +3714,11 @@ static s32 _halReadMACAddrFromFile(PADAPTER padapter, u8 *pbuf)
 		fs = get_fs();
 		set_fs(KERNEL_DS);
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+		kernel_read(fp, source_addr, 18, &pos);
+#else
 		vfs_read(fp, source_addr, 18, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 		source_addr[17] = ':';
 
 		head = end = source_addr;
