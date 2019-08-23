@@ -1567,7 +1567,11 @@ u32 rtw_read_efuse_from_file(const char *path, u8 *buf)
 	set_fs(KERNEL_DS);
 
 	for (i = 0 ; i < HWSET_MAX_SIZE ; i++) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+		kernel_read(fp, temp, 2, &pos);
+#else
 		vfs_read(fp, temp, 2, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 		if (sscanf(temp, "%hhx", &buf[i]) != 1) {
 			if (0)
 				DBG_871X_LEVEL(_drv_err_, "%s sscanf fail\n", __func__);
@@ -1575,10 +1579,18 @@ u32 rtw_read_efuse_from_file(const char *path, u8 *buf)
 		}
 		if ((i % EFUSE_FILE_COLUMN_NUM) == (EFUSE_FILE_COLUMN_NUM - 1)) {
 			/* Filter the lates space char. */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+			kernel_read(fp, temp, 1, &pos);
+#else
 			vfs_read(fp, temp, 1, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 			if (strchr(temp, ' ') == NULL) {
 				pos--;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+				kernel_read(fp, temp, 2, &pos);
+#else
 				vfs_read(fp, temp, 2, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 			}
 		} else {
 			pos += 1; /* Filter the space character */
@@ -1635,7 +1647,11 @@ u32 rtw_read_macaddr_from_file(const char *path, u8 *buf)
 	fs = get_fs();
 	set_fs(KERNEL_DS);
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+	kernel_read(fp, source_addr, 18, &pos);
+#else
 	vfs_read(fp, source_addr, 18, &pos);
+#endif //(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 	source_addr[17] = ':';
 
 	head = end = source_addr;
