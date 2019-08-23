@@ -684,7 +684,7 @@ static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0) 	
 				, void *accel_priv
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0) 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
 				, select_queue_fallback_t fallback
 #endif
 )
@@ -799,7 +799,7 @@ static const struct net_device_ops rtw_netdev_ops = {
 	.ndo_open = netdev_open,
 	.ndo_stop = netdev_close,
 	.ndo_start_xmit = rtw_xmit_entry,
-#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35))
+#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35)) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
 	.ndo_select_queue	= rtw_select_queue,
 #endif
 	.ndo_set_mac_address = rtw_net_set_mac_address,
@@ -1610,7 +1610,7 @@ static const struct net_device_ops rtw_netdev_vir_if_ops = {
         .ndo_set_mac_address = rtw_net_set_mac_address,
         .ndo_get_stats = rtw_net_get_stats,
         .ndo_do_ioctl = rtw_ioctl,
-#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35))
+#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35)) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
 	.ndo_select_queue	= rtw_select_queue,
 #endif
 };
@@ -2019,7 +2019,7 @@ static const struct net_device_ops rtw_netdev_if2_ops = {
 	.ndo_set_mac_address = rtw_net_set_mac_address,
 	.ndo_get_stats = rtw_net_get_stats,
 	.ndo_do_ioctl = rtw_ioctl,
-#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35))
+#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35)) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
 	.ndo_select_queue	= rtw_select_queue,
 #endif
 };
