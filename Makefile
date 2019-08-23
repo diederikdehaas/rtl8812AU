@@ -21,6 +21,7 @@ EXTRA_CFLAGS += -Wno-unused-label
 EXTRA_CFLAGS += -Wno-unused-parameter
 EXTRA_CFLAGS += -Wno-unused-function
 EXTRA_CFLAGS += -Wno-unused
+EXTRA_CFLAGS += -Wno-vla
 
 # Relax some warnings from '-Wextra' so we won't get flooded with warnings
 EXTRA_CFLAGS += -Wno-sign-compare
