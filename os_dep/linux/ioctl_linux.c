@@ -11251,76 +11251,79 @@ static int rtw_mp_read_reg(struct net_device *dev,
 			//*(u16*)data = rtw_read16(padapter, addr);
 			sprintf(data, "%04x\n", rtw_read16(padapter, addr));
 			for( i=0 ; i <= strlen(data) ; i++)
+			{
+				if( i%2==0 )
 				{
-					  if( i%2==0 )
-					  {
-						   tmp[j]=' ';
-						   j++;
-					  }
-					  if ( data[i] != '\0' )
-					 	 tmp[j] = data[i];
-					 	
-					  	 j++;
+					tmp[j]=' ';
+					j++;
 				}
-				pch = tmp;		
-				DBG_871X("pch=%s",pch);
+				if ( data[i] != '\0' ) {
+					tmp[j] = data[i];
+				}
+
+				j++;
+			}
+			pch = tmp;		
+			DBG_871X("pch=%s",pch);
+			
+			while( *pch != '\0' )
+			{
+				pnext = strpbrk(pch, " ");
+				if (!pnext)
+					break;
 				
-				while( *pch != '\0' )
+				pnext++;
+				if ( *pnext != '\0' )
 				{
-					pnext = strpbrk(pch, " ");
-					if (!pnext)
-						break;
-					
-					pnext++;
-					if ( *pnext != '\0' )
-					{
-						  strtout = simple_strtoul (pnext , &ptmp, 16);
-						  sprintf( extra, "%s %d" ,extra ,strtout );
-					}
-					else{
-						  break;
-					}
-					pch = pnext;
+					strtout = simple_strtoul (pnext , &ptmp, 16);
+					sprintf( extra, "%s %d" ,extra ,strtout );
 				}
+				else {
+					break;
+				}
+				pch = pnext;
+			}
 			wrqu->length = 7;
 			break;
 		case 'd':
 			// 4 bytes
 			//*data = rtw_read32(padapter, addr);
 			sprintf(data, "%08x", rtw_read32(padapter, addr));
-				//add read data format blank
-				for( i=0 ; i <= strlen(data) ; i++)
+			//add read data format blank
+			for( i=0 ; i <= strlen(data) ; i++)
+			{
+				if( i%2==0 )
 				{
-					  if( i%2==0 )
-					  {
-						   tmp[j]=' ';
-						   j++;
-					  }
-					  if ( data[i] != '\0' )
-					  tmp[j] = data[i];
-					  
-					  j++;
+					tmp[j]=' ';
+					j++;
 				}
-				pch = tmp;		
-				DBG_871X("pch=%s",pch);
+				if ( data[i] != '\0' ) {
+					tmp[j] = data[i];
+				}
+
+				j++;
+			}
+			pch = tmp;		
+			DBG_871X("pch=%s",pch);
+			
+			while( *pch != '\0' )
+			{
+				pnext = strpbrk(pch, " ");
+				if (!pnext) {
+					break;
+				}
 				
-				while( *pch != '\0' )
+				pnext++;
+				if ( *pnext != '\0' )
 				{
-					pnext = strpbrk(pch, " ");
-					if (!pnext)
-						break;
-					
-					pnext++;
-					if ( *pnext != '\0' )
-					{
-						  strtout = simple_strtoul (pnext , &ptmp, 16);
-						  sprintf( extra, "%s %d" ,extra ,strtout );
-					}
-					else{
-			break;
-					}
-					pch = pnext;
+					strtout = simple_strtoul (pnext , &ptmp, 16);
+					sprintf( extra, "%s %d" ,extra ,strtout );
 				}
+				else {
+					break;
+				}
+				pch = pnext;
+			}
 			wrqu->length = strlen(extra);
 			break;
 			

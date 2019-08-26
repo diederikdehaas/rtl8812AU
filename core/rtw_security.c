@@ -1572,31 +1572,36 @@ _func_enter_;
     aes128k128d(key, chain_buffer, aes_out);
 
 	for (i = 0; i < num_blocks; i++)
-    {
-        bitwise_xor(aes_out, &pframe[payload_index], chain_buffer);//bitwise_xor(aes_out, &message[payload_index], chain_buffer);
+	{
+		bitwise_xor(aes_out, &pframe[payload_index], chain_buffer);//bitwise_xor(aes_out, &message[payload_index], chain_buffer);
 
-        payload_index += 16;
-        aes128k128d(key, chain_buffer, aes_out);
-    }
+		payload_index += 16;
+		aes128k128d(key, chain_buffer, aes_out);
+	}
 
-    /* Add on the final payload block if it needs padding */
-    if (payload_remainder > 0)
-    {
-        for (j = 0; j < 16; j++) padded_buffer[j] = 0x00;
-        for (j = 0; j < payload_remainder; j++)
-        {
-            padded_buffer[j] = pframe[payload_index++];//padded_buffer[j] = message[payload_index++];
-        }
-        bitwise_xor(aes_out, padded_buffer, chain_buffer);
-        aes128k128d(key, chain_buffer, aes_out);
+	/* Add on the final payload block if it needs padding */
+	if (payload_remainder > 0)
+	{
+		for (j = 0; j < 16; j++) {
+			padded_buffer[j] = 0x00;
+		}
+		for (j = 0; j < payload_remainder; j++)
+		{
+			padded_buffer[j] = pframe[payload_index++];//padded_buffer[j] = message[payload_index++];
+		}
+		bitwise_xor(aes_out, padded_buffer, chain_buffer);
+		aes128k128d(key, chain_buffer, aes_out);
 
-    }
+	}
 
-    for (j = 0 ; j < 8; j++) mic[j] = aes_out[j];
+	for (j = 0 ; j < 8; j++) {
+		mic[j] = aes_out[j];
+	}
 
     /* Insert MIC into payload */
-    for (j = 0; j < 8; j++)
-    	pframe[payload_index+j] = mic[j];	//message[payload_index+j] = mic[j];
+	for (j = 0; j < 8; j++) {
+		pframe[payload_index+j] = mic[j];	//message[payload_index+j] = mic[j];
+	}
 
 	payload_index = hdrlen + 8;
 	for (i=0; i< num_blocks; i++)
@@ -1957,31 +1962,34 @@ _func_enter_;
     aes128k128d(key, chain_buffer, aes_out);
 
 	for (i = 0; i < num_blocks; i++)
-    {
-        bitwise_xor(aes_out, &message[payload_index], chain_buffer);
+	{
+		bitwise_xor(aes_out, &message[payload_index], chain_buffer);
 
-        payload_index += 16;
-        aes128k128d(key, chain_buffer, aes_out);
-    }
+		payload_index += 16;
+		aes128k128d(key, chain_buffer, aes_out);
+	}
 
-    /* Add on the final payload block if it needs padding */
-    if (payload_remainder > 0)
-    {
-        for (j = 0; j < 16; j++) padded_buffer[j] = 0x00;
-        for (j = 0; j < payload_remainder; j++)
-        {
-            padded_buffer[j] = message[payload_index++];
-        }
-        bitwise_xor(aes_out, padded_buffer, chain_buffer);
-        aes128k128d(key, chain_buffer, aes_out);
+	/* Add on the final payload block if it needs padding */
+	if (payload_remainder > 0)
+	{
+		for (j = 0; j < 16; j++) padded_buffer[j] = 0x00;
+		for (j = 0; j < payload_remainder; j++)
+		{
+			padded_buffer[j] = message[payload_index++];
+		}
+		bitwise_xor(aes_out, padded_buffer, chain_buffer);
+		aes128k128d(key, chain_buffer, aes_out);
 
-    }
+	}
 
-    for (j = 0 ; j < 8; j++) mic[j] = aes_out[j];
+	for (j = 0 ; j < 8; j++) {
+		mic[j] = aes_out[j];
+	}
 
-    /* Insert MIC into payload */
-    for (j = 0; j < 8; j++)
-    	message[payload_index+j] = mic[j];
+	/* Insert MIC into payload */
+	for (j = 0; j < 8; j++) {
+		message[payload_index+j] = mic[j];
+	}
 
 	payload_index = hdrlen + 8;
 	for (i=0; i< num_blocks; i++)
@@ -2030,15 +2038,19 @@ _func_enter_;
                         0,
                         frtype); // add for CONFIG_IEEE80211W, none 11w also can use
 
-    for (j = 0; j < 16; j++) padded_buffer[j] = 0x00;
-    for (j = 0; j < 8; j++)
-    {
-        padded_buffer[j] = message[j+hdrlen+8+plen-8];
-    }
+	for (j = 0; j < 16; j++) {
+	padded_buffer[j] = 0x00;
+}
+	for (j = 0; j < 8; j++)
+	{
+		padded_buffer[j] = message[j+hdrlen+8+plen-8];
+	}
 
-    aes128k128d(key, ctr_preload, aes_out);
-    bitwise_xor(aes_out, padded_buffer, chain_buffer);
-    for (j=0; j<8;j++) message[payload_index++] = chain_buffer[j];
+	aes128k128d(key, ctr_preload, aes_out);
+	bitwise_xor(aes_out, padded_buffer, chain_buffer);
+	for (j=0; j<8;j++) {
+		message[payload_index++] = chain_buffer[j];
+	}
 
 	//compare the mic
 	for(i=0;i<8;i++){
@@ -2051,7 +2063,7 @@ _func_enter_;
 			res = _FAIL;
 		}
 	}
-_func_exit_;	
+_func_exit_;
 	return res;
 }
 

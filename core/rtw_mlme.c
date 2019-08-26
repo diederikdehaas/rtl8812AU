@@ -3990,18 +3990,20 @@ unsigned int rtw_restructure_ht_ie(_adapter *padapter, u8 *in_ie, u8 *out_ie, ui
 	{
 	case RF_1T1R:
 		
-		if (stbc_rx_enable)
+		if (stbc_rx_enable) {
 			ht_capie.cap_info |= IEEE80211_HT_CAP_RX_STBC_1R;//RX STBC One spatial stream
+		}
 
-	                set_mcs_rate_by_mask(ht_capie.supp_mcs_set, MCS_RATE_1R);			
-			break;
+		set_mcs_rate_by_mask(ht_capie.supp_mcs_set, MCS_RATE_1R);			
+		break;
 
 	case RF_2T2R:
 	case RF_1T2R:
 	default:
 
-		if (stbc_rx_enable)
+		if (stbc_rx_enable) {
 			ht_capie.cap_info |= IEEE80211_HT_CAP_RX_STBC_2R;//RX STBC two spatial stream
+		}
 
 		#ifdef CONFIG_DISABLE_MCS13TO15
 		if(((cbw40_enable == 1) && (operation_bw == CHANNEL_WIDTH_40)) && (pregistrypriv->wifi_spec!=1))

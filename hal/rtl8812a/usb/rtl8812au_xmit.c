@@ -572,11 +572,12 @@ s32 rtl8812au_xmitframe_complete(_adapter *padapter, struct xmit_priv *pxmitpriv
 	// check pkt amount in one bulk
 	descCount = 0;
 	bulkPtr = bulkSize;
-	if (pbuf < bulkPtr)
+	if (pbuf < bulkPtr) {
 		descCount++;
-		if (descCount == pHalData->UsbTxAggDescNum)
-			goto agg_end;
-	else {
+	}
+	if (descCount == pHalData->UsbTxAggDescNum) {
+		goto agg_end;
+	} else {
 		descCount = 0;
 		bulkPtr = ((pbuf / bulkSize) + 1) * bulkSize; // round to next bulkSize
 	}
