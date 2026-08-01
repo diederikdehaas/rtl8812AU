@@ -1,5 +1,16 @@
 # rtl8812AU
-This repository contains drivers for the rtl8812AU and rtl8821AU/rtl8811AU chipsets.
+
+**IMPORTANT**: Support for ``RTL8812AU`` is available in upstream Linux since kernel 6.13 due to  
+[0e3e8284f8e1](https://git.kernel.org/linus/0e3e8284f8e1) ("wifi: rtw88: Enable the new RTL8821AU/RTL8812AU drivers")
+
+Link: https://patch.msgid.link/435af284-0794-48e0-81a5-5a88b3c454bf@gmail.com/
+
+Therefore there is no reason for this repo to exist any longer.  
+Consequently it will be 'archived' (made read-only) and will likely be deleted at some point in the future.
+
+------------------------------ old README below ------------------------------
+
+This repository contains **OBSOLETE** drivers for the rtl8812AU and rtl8821AU/rtl8811AU chipsets.
 
 It started out because I found a newer driver then I found elsewhere, namely version 4.3.8.
 But since then I found even newer versions released by Realtek and decided to use/update those too.  
