@@ -65,6 +65,7 @@ To make use of the DKMS feature with this project, do the following as root:
 # dkms add -m ${DRV_NAME} -v ${DRV_VERSION}
 # dkms build -m ${DRV_NAME} -v ${DRV_VERSION}
 # dkms install -m ${DRV_NAME} -v ${DRV_VERSION}
+# modprobe 8812au
 ```
 and the instructions with `sudo` are:
 
@@ -76,6 +77,7 @@ $ git archive driver-${DRV_VERSION} | sudo tar -x -C /usr/src/${DRV_NAME}-${DRV_
 $ sudo dkms add -m ${DRV_NAME} -v ${DRV_VERSION}
 $ sudo dkms build -m ${DRV_NAME} -v ${DRV_VERSION}
 $ sudo dkms install -m ${DRV_NAME} -v ${DRV_VERSION}
+$ sudo modprobe 8812au
 ```
 Whereby it is assumed you're in the cloned project directory and the current branch is `driver-4.3.20`. If you want to use another driver version, adjust `DRV_VERSION` accordingly.
 
