@@ -33,6 +33,7 @@ If you want/need to have features added to the driver, this repo is probably not
 There is another repo which seem to be maintained by people who (really) know what they're doing and they have added various features: https://github.com/aircrack-ng/rtl8812au.
 
 ## Raspberry Pi
+
 There is a section added for compilation on the Raspberry Pi, but it is not enabled by default.  
 To enable it, make the following change in the `Makefile`:
 ```
@@ -43,6 +44,11 @@ to
 ```
 CONFIG_PLATFORM_I386_PC = n
 CONFIG_PLATFORM_ARM_RPI = y
+```
+or, **on Raspberry Pi 3 Model B+**,
+```
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM64_RPI = y
 ```
 And then it should compile succesfully **on** the Raspberry Pi.  
 At the top of the `Makefile` there are some disabled `CFLAGS` settings which you probably want to enable, by removing the '#' in front of them, when compiling for the Raspberry Pi. You can identify them by the comments above them.
